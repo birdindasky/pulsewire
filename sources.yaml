@@ -1,0 +1,3949 @@
+# pulsewire 信源注册表(schema 见 src/pulsewire/config/models.py 的 Source)。
+# v1:AI 单兴趣,T1-T3 共 150 源(双轨发现+双重审核+复活+真抓验证;建库研究草稿已清理,见 git 历史)。
+# whitelisted=true:高价值源(labs/访谈)近期条目白名单直通精排。生物/局势源见目录,留 v2。
+# 注:github .atom feed 用 type=rss(feedparser);xyzfm 小宇宙源 UA 敏感暂 enabled:false(待 fetch 端换 UA)。
+
+sources:
+  # ---- labs:大厂/实验室官方一手(21/22 启用;qwen-blog 2026-07-05 处决) ----
+  - id: "anthropic-news-r-anthropic"   # Anthropic News (r/Anthropic)
+    type: rss
+    url: "https://www.reddit.com/r/Anthropic/.rss"
+    category: community  # 2026-07 P1:labs→community,名实相符(r/Anthropic 是论坛)
+    region: global
+    lang: en
+    weight: 0.6  # 2026-07 P1:1.0→0.6,Reddit 社区帖不该按官方 labs 一手加权
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "google-deepmind-blog-google"   # Google DeepMind (blog.google)
+    type: rss
+    url: "https://blog.google/technology/google-deepmind/rss/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    whitelisted: true
+
+  - id: "nvidia-blog"   # NVIDIA Blog
+    type: rss
+    url: "https://blogs.nvidia.com/feed/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "qwen-blog"   # Qwen Blog (阿里通义千问)——☠️ 2026-07-05 处决(用户批"按推荐来")
+    type: rss
+    url: "https://qwenlm.github.io/blog/index.xml"  # feed 冻结 2025-09;qwen.ai 新官网是 SPA 无订阅口;wechat2rss.xlab.app 镜像站实探无通义号(白捡落空)。Qwen 重大发布由 36氪/机器之心/HN/HF论文榜多源覆盖,丢的只是官稿原文。复活条件=官方重新提供可机读订阅口
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: false
+    whitelisted: true
+
+  - id: "r-anthropic-reddit-anthropic"   # r/Anthropic (Reddit, Anthropic 代理)
+    type: rss
+    url: "https://www.reddit.com/r/Anthropic/.rss"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "mistral-ai-r-mistralai"   # Mistral AI (r/MistralAI)
+    type: rss
+    url: "https://www.reddit.com/r/MistralAI/.rss"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "xai-grok-r-grok"   # xAI / Grok (r/grok)
+    type: rss
+    url: "https://www.reddit.com/r/grok/.rss"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "amazon-science"   # Amazon Science
+    type: rss
+    url: "https://www.amazon.science/index.rss"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "apple-machine-learning-research"   # Apple Machine Learning Research
+    type: rss
+    url: "https://machinelearning.apple.com/rss.xml"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "baidu-ernie-commits-atom"   # Baidu ERNIE (commits atom)
+    type: rss
+    url: "https://github.com/PaddlePaddle/ERNIE/releases.atom"  # 2026-07 P1:commit 流换 releases(发布级信号;实测 200)
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "deepseek-v3-commits-atom"   # DeepSeek-V3 (commits atom)
+    type: rss
+    url: "https://github.com/deepseek-ai/DeepSeek-V3/commits/main.atom"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "meta-research-blog"   # Meta Research Blog
+    type: rss
+    url: "https://research.facebook.com/feed/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    trust_published_at: false  # 2026-07 P1:feed 日期=抓取时刻动态生成(date_suspect=1.0);NULL=进不了新鲜窗只当互证
+    mixed: true
+    user_agent: "pulsewire/0.1 (+https://github.com/pulsewire)"  # Meta 对浏览器UA返400,用诚实UA
+    whitelisted: true
+
+  - id: "moonshot-kimi-k2-commits-atom"   # Moonshot Kimi-K2 (commits atom)
+    type: rss
+    url: "https://github.com/MoonshotAI/Kimi-K2/releases.atom"  # 2026-07 P1:commit 流换 releases(当前 0 条=监听未来发布,同 alphafold)
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "nvidia-technical-blog-developer"   # NVIDIA Technical Blog (Developer)
+    type: rss
+    url: "https://developer.nvidia.com/blog/feed/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "zhipu-glm-v-commits-atom"   # Zhipu GLM-V (commits atom)
+    type: rss
+    url: "https://github.com/zai-org/GLM-V/commits/main.atom"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "cohere-github-releases"   # Cohere (GitHub releases)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Cohere%22%20AI&hl=en-US&gl=US&ceid=US:en"  # 2026-07 P1:SDK 版本流换官方动态新闻查询流(法院改判;照 stability-ai-googlenews 先例)
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true  # googlenews 查询流=混合体裁,照 googlenews 先例
+    whitelisted: true
+
+  - id: "stability-ai-googlenews"   # Stability AI (GoogleNews)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Stability%20AI%22&hl=en-US&gl=US&ceid=US:en"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  # —— 2026-07-05 P2:官方实验室一手补缺(填 Mistral/Meta/Gemini/Anthropic/Stability 官方零覆盖)。
+  #    保守上线:weight 0.7(一手)/0.6,不 whitelisted(先证明再提权);无正文的高价值一手开 fulltext 回源。
+  - id: "mistral-official-blog"   # Mistral 官方博客(mistral.ai/rss.xml);一手 labs;2026-07-05 P2 增补
+    type: rss
+    url: "https://mistral.ai/rss.xml"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P2:feed 只给标题无正文(实测 bodylen=0),高价值一手,瘦条目回源抓全文
+    enabled: true
+
+  - id: "meta-newsroom-ai"   # Meta 官方 Newsroom AI tag(about.fb.com);一手 labs;2026-07-05 P2 增补
+    type: rss
+    url: "https://about.fb.com/news/tag/ai/feed/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "google-gemini-product-blog"   # Google Gemini 产品线博客(blog.google);一手 labs;2026-07-05 P2 增补
+    type: rss
+    url: "https://blog.google/products/gemini/rss/"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P2:feed 摘要极短(实测 bodylen≈20),高价值一手,瘦条目回源抓全文
+    enabled: true
+
+  - id: "anthropic-claude-code-releases"   # Anthropic Claude Code releases(github atom);一手 labs;2026-07-05 P2 增补
+    type: rss
+    url: "https://github.com/anthropics/claude-code/releases.atom"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.6  # release notes 密(日均 1-2 条 vX.Y.Z),压低权重靠重磅度闸挡噪
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "stability-ai-news"   # Stability AI 官方 News(squarespace feed);一手 labs;2026-07-05 P2 增补
+    type: rss
+    url: "https://stability.ai/news-updates?format=rss"
+    category: labs
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 336  # 官方发得慢(月更 0-2 条),放宽新鲜窗
+    enrich: []
+    enabled: true
+
+  # ---- research:论文(17/17 启用;2026-07-05 卷一 +ai-hf-daily-papers) ----
+  - id: "arxiv-cs-ai"   # arXiv cs.AI (Artificial Intelligence
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.AI"
+    category: research
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "arxiv-cs-cl"   # arXiv cs.CL (Computation and Languag
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.CL"
+    category: research
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "deepmind-blog"   # Google DeepMind Blog
+    type: rss
+    url: "https://deepmind.google/blog/rss.xml"
+    category: research
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "arxiv-cs-lg-machine-learning"   # arXiv cs.LG (Machine Learning)
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.LG"
+    category: research
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "huggingface-blog"   # Hugging Face Blog
+    type: rss
+    url: "https://huggingface.co/blog/feed.xml"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    url_exclude_patterns:  # 2026-07 P1:官方 feed 混入海量社区博文(822 条/月),按 /blog/<org>/<slug> 两段路径踢;头部机构放行
+      - '(?i)^https://huggingface\.co/blog/(?!(?:allenai|ibm-research|nvidia|google|microsoft|qwen|openai|meta-llama|deepseek-ai)/)[^/]+/[^/]+$'
+
+  - id: "openai-news"   # OpenAI News/Research
+    type: rss
+    url: "https://openai.com/news/rss.xml"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bair-blog-berkeley-ai-research"   # BAIR Blog (Berkeley AI Research)
+    type: rss
+    url: "https://bair.berkeley.edu/blog/feed.xml"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "google-research-blog"   # Google Research Blog
+    type: rss
+    url: "https://research.google/blog/rss/"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    mixed: true
+
+  - id: "microsoft-research-blog"   # Microsoft Research Blog
+    type: rss
+    url: "https://www.microsoft.com/en-us/research/feed/"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "arxiv-cs-cv-computer-vision"   # arXiv cs.CV (Computer Vision)
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.CV"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "arxiv-cs-ma-multiagent-systems"   # arXiv cs.MA (Multiagent Systems)
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.MA"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "arxiv-stat-ml-machine-learning-stati"   # arXiv stat.ML (Machine Learning - St
+    type: rss
+    url: "https://export.arxiv.org/rss/stat.ML"
+    category: research
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  # —— 2026-07-05 P2:论文/期刊一手补缺。arXiv cs.RO 补机器人/具身智能盲区;Nature Machine
+  #    Intelligence 补 AI 板同行评审刊(现役 nature.com 全在生物板);takara 是 HF 每日论文榜零代码 RSS 镜像。
+  - id: "takara-hf-papers-tldr"   # HF 每日论文精选 RSS 镜像(takara.ai);聚合(HF papers 榜);2026-07-05 P2 增补
+    type: rss
+    url: "https://papers.takara.ai/api/feed"
+    category: research
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "nature-machine-intelligence"   # Nature Machine Intelligence(natmachintell.rss);一手 同行评审刊;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.nature.com/natmachintell.rss"
+    category: research
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "arxiv-cs-ro"   # arXiv cs.RO(机器人/具身智能);一手预印;2026-07-05 P2 增补(周末 skipDays 空批,工作日出条目,同现役 7 个 arxiv 源)
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.RO"
+    category: research
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "science-robotics-toc"   # Science Robotics 目录(AAAS scirobotics);一手 机器人顶刊;2026-07-05 P2 增补(周更,条目稀)
+    type: rss
+    url: "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=scirobotics"
+    category: research
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "ai-hf-daily-papers"   # HuggingFace Daily Papers(每日精选论文)
+    type: hf_papers
+    # 出处:https://huggingface.co/api/daily_papers(HF 官方公开 API,2026-07-05 实探字段结构)。
+    # published_at=paper.publishedAt(一手论文时间;顶层 publishedAt 是精选页时间,不冒充)。
+    # upvotes 不设门槛:榜单已编辑精选,票数随时间累积、当天新论文票数天然低
+    # (实测 50 条分布 1~76、中位 ~6),设槛=系统性砍最新;原始票数存 facts.hf 备查。
+    # 2026-07-05 卷一
+    url: "https://huggingface.co/api/daily_papers?limit=50"
+    category: research
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  # ---- devtools:编程助手/工具/GitHub趋势(29/34 启用;2026-07-05 卷二 +ossinsight-trends-ai) ----
+  - id: "cline-releases"   # Cline Releases
+    type: rss
+    url: "https://github.com/cline/cline/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "github-search-ai-agents"   # GitHub Search: AI agents
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:ai-agent+stars:%3E500&sort=updated&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-search-ai-coding-assistants"   # GitHub Search: AI coding assistants
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:ai-coding-assistant+stars:%3E100&sort=updated&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  # —— v2 ④ Phase B:扩开源发现(2026-06-24)。三条新 AI 主题搜索,实测 token 候选都是好仓:
+  #    rag=dify/open-webui/langchain、llmops=litellm/langfuse、mcp=fastmcp。源名含 ai/llm 以过
+  #    github_board 候选池过滤(source ILIKE ai/llm/agent)。裸 topic:mcp 因混入假星 ECC + 非 AI
+  #    仓(n8n/JavaGuide)弃用,改更干净的 model-context-protocol。sort:updated 抓近期活跃仓配合涨速排序。
+  - id: "github-search-ai-rag"   # GitHub Search: RAG / 检索增强
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:rag+stars:%3E500&sort=updated&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-search-llmops"   # GitHub Search: LLMOps / LLM 基础设施
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:llmops+stars:%3E300&sort=updated&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-search-ai-mcp"   # GitHub Search: MCP(Model Context Protocol)
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:model-context-protocol+stars:%3E300&sort=updated&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-trending-all-languages-daily"   # GitHub Trending - All Languages Dail
+    type: rss
+    url: "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: []
+    enabled: false   # 2026-06-27 停用:全语言趋势榜混入非 AI 仓,既不该进 AI 新闻板、GitHub 热榜板也不收
+
+  - id: "github-fresh-llm-repos"   # GitHub: fresh LLM repos(滚动新鲜窗:近 60 天创建)
+    type: github
+    # created:>{created_since:60d} = 抓取时换成"今天−60天"的日期(适配器 _apply_rolling_window),
+    # 滚动窗,不再像写死 2026-01-01 那样越往后越宽。专抓"新冒头且涨得猛"的 AI 仓。
+    url: "https://api.github.com/search/repositories?q=topic:llm+created:>{created_since:60d}+stars:>100&sort=stars&order=desc"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "ossinsight-trends-ai"   # OSS Insight 涨速榜(AI 过滤)
+    type: ossinsight
+    # 出处:https://api.ossinsight.io/v1/trends/repos/(OSS Insight 官方公开 API,2026-07-05 实探)。
+    # GitHub 摘星榜第 5 路供应源:全 GitHub 涨速榜,补 4 路 topic 搜索的盲区(没打 topic 标签的新仓)。
+    # API 无 topic/keyword 参数(实测被静默忽略)→ 适配器内保守词边界 AI 关键词过滤
+    # (词表+理由见 src/pulsewire/sources/ossinsight.py,宁漏勿滥),源 id 才配叫 ai。
+    # API 无任何日期列 → 适配器按 repo 名回源 GitHub /repos/{owner}/{repo} 取一手
+    # pushed_at/created_at/stars(与 4 路 github 搜索源同 facts 形状);拿不到日期的仓直接
+    # 丢弃,绝不落抓取时间(2026-06-25 freshness 造假教训)。
+    # 2026-07-05 卷二
+    url: "https://api.ossinsight.io/v1/trends/repos/?period=past_24_hours"
+    board_only: true   # 项目榜源:只供 GitHub 热榜板,不进 AI 新闻板(2026-06-27 两板分开)
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "openai-codex-releases"   # OpenAI Codex Releases
+    type: rss
+    url: "https://github.com/openai/codex/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+    title_exclude_patterns:  # 2026-07 P1:alpha 预发布刷屏(一天多条 0.143.0-alpha.N),只收正式版
+      - '(?i)\b(alpha|beta|rc|nightly)\b'
+
+  - id: "github-copilot-changelog"   # GitHub Copilot Changelog
+    type: rss
+    url: "https://github.blog/changelog/label/copilot/feed/"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "cursor-changelog"   # Cursor Changelog
+    type: rss
+    url: "https://cursor.com/changelog/rss.xml"  # 2026-07 P1:去 www 跟上 308(实测 200/6-30 新条)
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "github-trending-all-languages-weekly"   # GitHub Trending - All Languages Week
+    type: rss
+    url: "https://mshibanami.github.io/GitHubTrendingRSS/weekly/all.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: false   # 2026-06-27 停用:同 all-daily(全语言趋势榜,两板都不该收)
+
+  - id: "github-trending-python-daily"   # GitHub Trending - Python Daily
+    type: rss
+    url: "https://mshibanami.github.io/GitHubTrendingRSS/daily/python.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: false   # 2026-06-27 停用:语言趋势榜(Python),非 AI 项目混入,两板都不该收
+
+  - id: "ollama-releases"   # Ollama releases
+    type: rss
+    url: "https://github.com/ollama/ollama/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "awesome-llm-apps-commits"   # awesome-llm-apps commits
+    type: rss
+    url: "https://github.com/Shubhamsaboo/awesome-llm-apps/commits/main.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "awesome-mcp-servers-commits"   # awesome-mcp-servers commits
+    type: rss
+    url: "https://github.com/punkpeye/awesome-mcp-servers/commits/main.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "vllm-releases"   # vLLM releases
+    type: rss
+    url: "https://github.com/vllm-project/vllm/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "cursor-changelog-2"   # Cursor Changelog (官方)
+    type: rss
+    url: "https://www.cursor.com/changelog/rss.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "langchain-github-releases"   # LangChain (GitHub releases)
+    type: rss
+    url: "https://github.com/langchain-ai/langchain/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "continue-releases"   # Continue releases
+    type: rss
+    url: "https://github.com/continuedev/continue/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "aider-releases"   # Aider releases
+    type: rss
+    url: "https://github.com/Aider-AI/aider/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "github-trending-rust-daily"   # GitHub Trending - Rust Daily
+    type: rss
+    url: "https://mshibanami.github.io/GitHubTrendingRSS/daily/rust.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: false   # 2026-06-27 停用:语言趋势榜(Rust),非 AI 项目混入,两板都不该收
+
+  - id: "github-trending-typescript-daily"   # GitHub Trending - TypeScript Daily
+    type: rss
+    url: "https://mshibanami.github.io/GitHubTrendingRSS/daily/typescript.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: false   # 2026-06-27 停用:语言趋势榜(TypeScript),非 AI 项目混入,两板都不该收
+
+  - id: "langchain-changelog"   # LangChain Changelog
+    type: rss
+    url: "https://changelog.langchain.com/feed"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "langchain-releases"   # LangChain releases
+    type: rss
+    url: "https://github.com/langchain-ai/langchain/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "llamaindex-blog-medium"   # LlamaIndex Blog (Medium)
+    type: rss
+    url: "https://medium.com/feed/llamaindex-blog"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "product-hunt-artificial-intelligence"   # Product Hunt - Artificial Intelligen
+    type: rss
+    url: "https://www.producthunt.com/feed?category=artificial-intelligence"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "llama-cpp-releases"   # llama.cpp releases
+    type: rss
+    url: "https://github.com/ggml-org/llama.cpp/releases.atom"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  - id: "windsurf-r-windsurf"   # Windsurf (r/windsurf)
+    type: rss
+    url: "https://www.reddit.com/r/windsurf/.rss"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 240
+    enrich: []
+    enabled: true
+
+  # —— 2026-07-05 P2:GitHub 新鲜仓发现(4 条零代码 Search API 源,一手真时间戳 created_at/pushed_at,
+  #    治 date_suspect)。board_only:只供 GitHub 热榜板不进 AI 新闻板;id 含 ai/llm/agent 以过 github_board
+  #    候选池 ILIKE 过滤;{created_since:Nd} 滚动窗由 _apply_rolling_window 替换;与现役 topic 源错位(补
+  #    文本搜/新生仓盲区)。weight 0.7(保守,低于现役同门 1.0);实测各源 total=70/159/80/23,时间戳真实。
+  - id: "github-fresh-ai-broad"   # GitHub 新仓:topic:ai 近30天>100星;一手榜单;2026-07-05 P2 增补
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:ai+created:>{created_since:30d}+stars:>100&sort=stars&order=desc"
+    board_only: true
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-fresh-llm-textsearch"   # GitHub 新仓:llm/agent 文本搜近14天>50星(逮不打 topic 的大厂新仓);一手榜单;2026-07-05 P2 增补
+    type: github
+    url: "https://api.github.com/search/repositories?q=llm+OR+agent+in:name,description+created:>{created_since:14d}+stars:>50&sort=stars&order=desc"
+    board_only: true
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-fresh-agent-repos"   # GitHub 新仓:topic:ai-agent 近45天新生>50星;一手榜单;2026-07-05 P2 增补
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:ai-agent+created:>{created_since:45d}+stars:>50&sort=stars&order=desc"
+    board_only: true
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  - id: "github-fresh-ai-mcp-servers"   # GitHub 新仓:topic:mcp-server 近45天新芽>30星;一手榜单;2026-07-05 P2 增补
+    type: github
+    url: "https://api.github.com/search/repositories?q=topic:mcp-server+created:>{created_since:45d}+stars:>30&sort=stars&order=desc"
+    board_only: true
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.7
+    freshness_hours: 240
+    enrich: [github]
+    enabled: true
+
+  # ---- community:社区(Reddit/HN/Lobsters)(13/13 启用) ----
+  - id: "r-localllama"   # r/LocalLLaMA
+    type: rss
+    url: "https://www.reddit.com/r/LocalLLaMA/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-machinelearning"   # r/MachineLearning
+    type: rss
+    url: "https://www.reddit.com/r/MachineLearning/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "lobsters-ai"   # Lobsters - ai tag
+    type: rss
+    url: "https://lobste.rs/t/ai.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "hn-show-hn-ai"   # HN Show HN: AI
+    type: rss
+    url: "https://hnrss.org/show?q=AI&points=20"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "reddit-r-chatgptcoding"   # Reddit r/ChatGPTCoding
+    type: rss
+    url: "https://www.reddit.com/r/ChatGPTCoding/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-claudeai"   # r/ClaudeAI
+    type: rss
+    url: "https://www.reddit.com/r/ClaudeAI/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-llmdevs"   # r/LLMDevs
+    type: rss
+    url: "https://www.reddit.com/r/LLMDevs/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-openai"   # r/OpenAI
+    type: rss
+    url: "https://www.reddit.com/r/OpenAI/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-stablediffusion"   # r/StableDiffusion
+    type: rss
+    url: "https://www.reddit.com/r/StableDiffusion/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-singularity"   # r/singularity
+    type: rss
+    url: "https://www.reddit.com/r/singularity/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-artificialinteligence"   # r/ArtificialInteligence
+    type: rss
+    url: "https://www.reddit.com/r/ArtificialInteligence/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "r-accelerate"   # r/accelerate
+    type: rss
+    url: "https://www.reddit.com/r/accelerate/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  - id: "r-artificial"   # r/artificial
+    type: rss
+    url: "https://www.reddit.com/r/artificial/.rss"
+    category: community
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 72
+    enrich: []
+    enabled: true
+
+  # ---- news:资讯/通讯/博客/人物追踪(49/50 启用) ----
+  - id: "latent-space-swyx"   # Latent Space (swyx)
+    type: rss
+    url: "https://www.latent.space/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "the-decoder"   # The Decoder
+    type: rss
+    url: "https://the-decoder.com/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ahead-of-ai-sebastian-raschka"   # Ahead of AI (Sebastian Raschka)
+    type: rss
+    url: "https://magazine.sebastianraschka.com/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "dario-amodei-google-news"   # Dario Amodei 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Dario+Amodei%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "demis-hassabis-google-news"   # Demis Hassabis 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Demis+Hassabis%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "dwarkesh-podcast-2"   # Dwarkesh Podcast
+    type: rss
+    url: "https://www.dwarkesh.com/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "elon-musk-xai-grok-google-news"   # Elon Musk / xAI / Grok 追踪 (Google Ne
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Elon+Musk%22+(xAI+OR+Grok+OR+AI)&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "github-blog-ai-ml"   # GitHub Blog AI & ML
+    type: rss
+    url: "https://github.blog/ai-and-ml/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "google-news-dario-amodei"   # Google News: Dario Amodei
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Dario%20Amodei%22%20Anthropic&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "google-news-sam-altman"   # Google News: Sam Altman
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Sam%20Altman%22%20AI&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "import-ai-jack-clark"   # Import AI (Jack Clark)
+    type: rss
+    url: "https://jack-clark.net/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "interconnects-nathan-lambert"   # Interconnects (Nathan Lambert)
+    type: rss
+    url: "https://www.interconnects.ai/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "jensen-huang-google-news"   # Jensen Huang 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Jensen+Huang%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "one-useful-thing-ethan-mollick"   # One Useful Thing (Ethan Mollick)
+    type: rss
+    url: "https://www.oneusefulthing.org/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "sam-altman-google-news"   # Sam Altman 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Sam+Altman%22+OpenAI&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "semianalysis"   # SemiAnalysis
+    type: rss
+    url: "https://newsletter.semianalysis.com/feed"  # 2026-07 P1:旧 WP feed 冻结 2025-09,刊物迁 newsletter 子域(实测 200/7-02 新文)
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "simonwillison"   # Simon Willison's Weblog
+    type: rss
+    url: "https://simonwillison.net/atom/everything/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "techcrunch-ai"   # TechCrunch AI
+    type: rss
+    url: "https://techcrunch.com/tag/ai/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "techcrunch-ai-2"   # TechCrunch AI
+    type: rss
+    url: "https://techcrunch.com/category/artificial-intelligence/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "liang-wenfeng-deepseek-google-news"   # 梁文锋 / Liang Wenfeng (DeepSeek) 追踪 (G
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Liang%20Wenfeng%22%20OR%20%22%E6%A2%81%E6%96%87%E9%94%8B%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "the-verge-ai"   # The Verge AI
+    type: rss
+    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "venturebeat-ai"   # VentureBeat AI
+    type: rss
+    url: "https://venturebeat.com/category/ai/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ai-snake-oil-narayanan-kapoor"   # AI Snake Oil (Narayanan & Kapoor)
+    type: rss
+    url: "https://www.normaltech.ai/feed"  # 2026-07 P1:旧址 aisnakeoil.com 301 搬家到 normaltech.ai(实测 200/6 月新文)
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "andrej-karpathy-google-news"   # Andrej Karpathy 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Andrej+Karpathy%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ars-technica-ai"   # Ars Technica AI
+    type: rss
+    url: "https://arstechnica.com/ai/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ars-technica-ai-2"   # Ars Technica AI
+    type: rss
+    url: "https://arstechnica.com/tag/artificial-intelligence/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "chip-huyen"   # Chip Huyen
+    type: rss
+    url: "https://huyenchip.com/feed.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "eugene-yan"   # Eugene Yan
+    type: rss
+    url: "https://eugeneyan.com/rss/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "exploring-language-models-maarten-gr"   # Exploring Language Models (Maarten G
+    type: rss
+    url: "https://newsletter.maartengrootendorst.com/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "google-news-elon-musk-xai"   # Google News: Elon Musk xAI
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Elon%20Musk%22%20xAI&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "google-news-jensen-huang-ai"   # Google News: Jensen Huang AI
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Jensen%20Huang%22%20AI&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ilya-sutskever-google-news"   # Ilya Sutskever 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Ilya+Sutskever%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "last-week-in-ai"   # Last Week in AI
+    type: rss
+    url: "https://lastweekin.ai/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "lil-log-lilian-weng"   # Lil'Log (Lilian Weng)
+    type: rss
+    url: "https://lilianweng.github.io/index.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "metr"   # METR
+    type: rss
+    url: "https://metr.org/feed.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "mark-zuckerberg-meta-ai-google-news"   # Mark Zuckerberg / Meta AI 追踪 (Google
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Mark+Zuckerberg%22+(AI+OR+Meta)&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "sourcegraph-blog"   # Sourcegraph Blog
+    type: rss
+    url: "https://sourcegraph.com/blog/rss.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "stratechery-ben-thompson"   # Stratechery (Ben Thompson)
+    type: rss
+    url: "https://stratechery.com/feed/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "sundar-pichai-google-news"   # Sundar Pichai 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Sundar+Pichai%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "tldr-ai"   # TLDR AI
+    type: rss
+    url: "https://tldr.tech/api/rss/ai"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "the-information"   # The Information
+    type: rss
+    url: "https://www.theinformation.com/feed"  # ⚠️ 2026-07 P1 复启失败:curl 200 但 httpx 403(Cloudflare TLS 指纹拦非浏览器栈),我们的采集端过不去,保持禁用
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: false
+
+  - id: "yann-lecun-google-news"   # Yann LeCun 追踪 (Google News)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Yann+LeCun%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "arxiv-cs-se"   # arXiv cs.SE
+    type: rss
+    url: "https://export.arxiv.org/rss/cs.SE"
+    category: research  # 2026-07 P1:news→research,与其余 arXiv 源对齐
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "fei-fei-li-world-labs-google-news"   # 李飞飞 / Fei-Fei Li (World Labs) 追踪 (Go
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22Fei-Fei+Li%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "the-batch-googlenews"   # The Batch (GoogleNews)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%22The%20Batch%22%20%22Andrew%20Ng%22&hl=en-US&gl=US&ceid=US:en"
+    category: news
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "axios"   # Axios
+    type: rss
+    url: "https://www.axios.com/feeds/feed.rss"
+    category: news
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "ben-s-bites"   # Ben's Bites
+    type: rss
+    url: "https://www.bensbites.com/feed"
+    category: news
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "ieee-spectrum-ai"   # IEEE Spectrum AI
+    type: rss
+    url: "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss"
+    category: news
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "jay-alammar"   # Jay Alammar
+    type: rss
+    url: "https://jalammar.github.io/feed.xml"
+    category: news
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "the-gradient"   # The Gradient
+    type: rss
+    url: "https://thegradient.pub/rss/"
+    category: news
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  # ---- cn:中文媒体(12/12 启用) ----
+  - id: "qbitai"   # 量子位 QbitAI
+    type: rss
+    url: "https://www.qbitai.com/feed"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 1.0
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "googlenews-zh"   # 机器之心 (GoogleNews zh)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E6%9C%BA%E5%99%A8%E4%B9%8B%E5%BF%83&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "it"   # IT之家
+    type: rss
+    url: "https://www.ithome.com/rss/"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "infoq"   # InfoQ 中国
+    type: rss
+    url: "https://www.infoq.cn/feed"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    mixed: true
+
+  - id: "ai"   # 雷峰网 (AI科技评论母站)
+    type: rss
+    url: "https://www.leiphone.com/feed"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "cn-36"   # 36氪
+    type: rss
+    url: "https://36kr.com/feed"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "cn-src"   # 量子位 - 资讯分类
+    type: rss
+    url: "https://www.qbitai.com/category/%E8%B5%84%E8%AE%AF/feed"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "baai-googlenews-zh"   # 智源 BAAI (GoogleNews zh)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E6%99%BA%E6%BA%90%20BAAI&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  # —— 2026-07-05 P2:中文 AI 供给补缺(公众号一手 + RSSHub 二手/聚合)。风险:均依赖第三方镜像服务无 SLA。
+  - id: "wechat-xixiaoyao"   # 微信公众号「夕小瑶科技说」(wechat2rss 直连);一手 中文 LLM 业界;2026-07-05 P2 增补(单一第三方服务,无备用镜像)
+    type: rss
+    url: "https://wechat2rss.xlab.app/feed/a1cd365aa14ed7d64cabfc8aa086da40ecaba34d.xml"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "aibase-news-rsshub"   # AIBase 中文 AI 快讯(rsshub 公共实例);二手;2026-07-05 P2 增补(依赖第三方 RSSHub,无 SLA)
+    type: rss
+    url: "https://rsshub.rssforever.com/aibase/news"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "mittrchina-rsshub"   # 麻省理工科技评论中国(rsshub 公共实例);二手 深度;2026-07-05 P2 增补(依赖第三方 RSSHub)
+    type: rss
+    url: "https://rsshub.rssforever.com/mittrchina/index"
+    category: cn
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "juejin-aicoding-rsshub"   # 掘金「AI 编程」频道(rsshub ktachibana);聚合 中文开发者;2026-07-05 P2 增补(UGC 方差大,靠重磅度闸兜,试验源)
+    type: rss
+    url: "https://rsshub.ktachibana.party/juejin/aicoding"
+    category: community
+    region: cn
+    lang: zh
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  # ---- cn-policy:中国 AI 政策/监管一手(官网无 RSS,走 Google News site: 路由,同 geo thepaper 惯例;domain=ai)。2026-07-05 P2 增补 ----
+  - id: "cn_policy_cac"   # 网信办 CAC(生成式AI/算法备案主管机关);一手;2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Acac.gov.cn%20when%3A30d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "cn_policy_most"   # 科技部 MOST(新一代AI国家科技重大专项);一手;2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Amost.gov.cn%20when%3A30d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "cn_policy_nda"   # 国家数据局(人工智能+数据要素政策);一手 信噪比最高;2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Anda.gov.cn%20when%3A90d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "cn_inst_caict"   # 中国信通院 CAICT(工信部智库,AI白皮书/评测);一手 近 MIIT 替代通道;2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Acaict.ac.cn%20%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%20when%3A90d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "cn_std_tc260"   # 全国网安标委 TC260(AI安全治理框架/国标原始出处);一手 低频高权;2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Atc260.org.cn&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.7
+    freshness_hours: 720  # 标准机构发文稀疏,放宽新鲜窗;不加 when: 限窗(低频加窗常年空转)
+    enrich: []
+    enabled: true
+
+  - id: "cn_policy_ndrc"   # 发改委 NDRC(人工智能+行动牵头部委);一手 但噪声高;2026-07-05 P2 增补(GN 关键词匹配松,混宏观经济条目,靠 topic gate 兜)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site%3Andrc.gov.cn%20%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%20when%3A90d&hl=zh-CN&gl=CN&ceid=CN%3Azh-Hans"
+    category: cn-policy
+    region: cn
+    lang: zh
+    weight: 0.6  # 六个候选里噪声最高,压低权重
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  # ---- interviews:圈内大佬访谈播客(19/24 启用) ----
+  - id: "cognitive-revolution"   # The Cognitive Revolution
+    type: rss
+    url: "https://feeds.megaphone.fm/RINTP3108857801"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "dwarkesh-podcast"   # Dwarkesh Podcast
+    type: rss
+    url: "https://api.substack.com/feed/podcast/69345.rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "latent-space"   # Latent Space (The AI Engineer Podcas
+    type: rss
+    url: "https://api.substack.com/feed/podcast/1084089.rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "machine-learning-street-talk-mlst"   # Machine Learning Street Talk (MLST)
+    type: rss
+    url: "https://www.mlst.ai/feed"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "no-priors"   # No Priors
+    type: rss
+    url: "https://feeds.megaphone.fm/nopriors"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "training-data-sequoia-capital"   # Training Data (Sequoia Capital)
+    type: rss
+    url: "https://feeds.megaphone.fm/trainingdata"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "crossing"   # 十字路口Crossing
+    type: rss
+    url: "https://feed.xyzfm.space/68fyjknth9hj"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+
+  - id: "zhangxiaojun-interviews"   # 张小珺Jùn｜商业访谈录
+    type: rss
+    url: "https://feed.xyzfm.space/dk4yh3pkpjp3"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 720
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "interviews-src"   # 海外独角兽
+    type: rss
+    url: "https://feed.xyzfm.space/ym6ug8jctfp8"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+
+  - id: "interviews-101"   # 硅谷101
+    type: rss
+    url: "https://feeds.fireside.fm/sv101/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 1.0
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "acquired"   # Acquired
+    type: rss
+    url: "https://feeds.transistor.fm/acquired"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "all-in-podcast"   # All-In Podcast
+    type: rss
+    url: "https://allinchamathjason.libsyn.com/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "hard-fork"   # Hard Fork
+    type: rss
+    url: "https://feeds.simplecast.com/l2i9YnTd"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "lenny-s-podcast"   # Lenny's Podcast
+    type: rss
+    url: "https://api.substack.com/feed/podcast/10845.rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "lex-fridman"   # Lex Fridman Podcast
+    type: rss
+    url: "https://lexfridman.com/feed/podcast/"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true  # 2026-07 P1 法院改判:混题访谈源(罗马史/物理夹 AI),错标非 mixed 是原判误杀杠杆;话题闸踢非 AI 集
+    whitelisted: true
+
+  - id: "onboard"   # OnBoard!
+    type: rss
+    url: "https://feed.xyzfm.space/xxg7ryklkkft"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+
+  - id: "the-twiml-ai-podcast"   # The TWIML AI Podcast
+    type: rss
+    url: "https://feeds.megaphone.fm/MLN2155636147"  # 2026-07 P1:301 目标直连(实测 200/条目带真 link)
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "the-twenty-minute-vc-20vc"   # The Twenty Minute VC (20VC)
+    type: rss
+    url: "https://thetwentyminutevc.libsyn.com/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "the-a16z-podcast-the-a16z-show"   # The a16z Podcast (The a16z Show)
+    type: rss
+    url: "https://feeds.simplecast.com/JGE3yC0V"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "what-s-next"   # What's Next｜科技早知道（声动活泼）
+    type: rss
+    url: "https://guiguzaozhidao.fireside.fm/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+    whitelisted: true
+
+  - id: "whynottv-podcast"   # WhynotTV Podcast
+    type: rss
+    url: "https://anchor.fm/s/106f6c76c/podcast/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "interviews-src-2"   # 跨国串门儿计划
+    type: rss
+    url: "https://feed.xyzfm.space/r8t44lmvu99m"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.8
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "eye-on-a-i"   # Eye on A.I.
+    type: rss
+    url: "https://aneyeonai.libsyn.com/rss"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  - id: "gradient-dissent-weights-biases"   # Gradient Dissent (Weights & Biases)
+    type: rss
+    url: "https://feeds.captivate.fm/gradient-dissent/"
+    category: interviews
+    region: global
+    lang: en
+    weight: 0.6
+    freshness_hours: 504
+    enrich: []
+    enabled: true
+    whitelisted: true
+
+  # ---- 离线测试兜底(默认关) ----
+  - id: "local-fixture"
+    type: file
+    url: "file://./tests/fixtures/sample_feed.xml"
+    category: devtools
+    region: global
+    lang: en
+    weight: 0.1
+    freshness_hours: 168
+    enrich: []
+    enabled: false
+
+  # ====== 生物医疗(domain=bio,70 源,pool.json verified + 2026-07-05 P2 增补)======
+  - id: "bio-hacker-news-neuralink"   # Hacker News: Neuralink
+    type: hackernews
+    url: "https://hn.algolia.com/api/v1/search_by_date?query=%22Neuralink%22&tags=story"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-biorxiv-cell-biology"   # bioRxiv Cell Biology
+    type: rss
+    url: "https://connect.biorxiv.org/biorxiv_xml.php?subject=cell_biology"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-medrxiv-all-subjects"   # medRxiv (All subjects)
+    type: rss
+    url: "https://connect.medrxiv.org/medrxiv_xml.php?subject=all"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-arxiv-q-bio-all-quantitative-biology"   # arXiv q-bio (all quantitative biology)
+    type: rss
+    url: "http://export.arxiv.org/rss/q-bio"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-arxiv-q-bio-gn-genomics"   # arXiv q-bio.GN (Genomics)
+    type: rss
+    url: "http://export.arxiv.org/rss/q-bio.GN"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-nature-biotechnology"   # Nature Biotechnology
+    type: rss
+    url: "https://www.nature.com/nbt.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-methods"   # Nature Methods
+    type: rss
+    url: "https://www.nature.com/nmeth.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-medicine"   # Nature Medicine
+    type: rss
+    url: "https://www.nature.com/nm.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-flagship"   # Nature (flagship)
+    type: rss
+    url: "https://www.nature.com/nature.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-nature-genetics"   # Nature Genetics
+    type: rss
+    url: "https://www.nature.com/ng.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-science-translational-medicine"   # Science Translational Medicine
+    type: rss
+    url: "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=stm"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-cell-in-press"   # Cell (In Press)
+    type: rss
+    url: "https://www.cell.com/cell/inpress.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-cell-systems-in-press"   # Cell Systems (In Press)
+    type: rss
+    url: "https://www.cell.com/cell-systems/inpress.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-elife-latest-articles"   # eLife: latest articles
+    type: rss
+    url: "https://elifesciences.org/rss/recent.xml"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-stat-news"   # STAT News
+    type: rss
+    url: "https://www.statnews.com/feed/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-endpoints-news"   # Endpoints News
+    type: rss
+    url: "https://endpts.com/feed/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-fierce-biotech"   # Fierce Biotech
+    type: rss
+    url: "https://www.fiercebiotech.com/rss/xml"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-fierce-pharma"   # Fierce Pharma
+    type: rss
+    url: "https://www.fiercepharma.com/rss/xml"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-biopharma-dive"   # BioPharma Dive
+    type: rss
+    url: "https://www.biopharmadive.com/feeds/news/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-biotechnology-subject"   # Nature - Biotechnology subject
+    type: rss
+    url: "https://www.nature.com/subjects/biotechnology.rss"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "bio-science-aaas-news"   # Science (AAAS) News
+    type: rss
+    url: "https://www.science.org/rss/news_current.xml"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-c-en-chemical-engineering-news"   # C&EN (Chemical & Engineering News)
+    type: rss
+    url: "https://cen.acs.org/feeds/rss/latestnews.xml"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    mixed: true
+
+  - id: "bio-mit-technology-review"   # MIT Technology Review
+    type: rss
+    url: "https://www.technologyreview.com/feed/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-labiotech-eu"   # Labiotech.eu
+    type: rss
+    url: "https://www.labiotech.eu/feed/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-gen-genetic-engineering-biotechnology-news"   # GEN (Genetic Engineering & Biotechnology News)
+    type: rss
+    url: "https://www.genengnews.com/feed/"
+    domain: "bio"
+    category: "news-industry"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-fda-press-announcements"   # FDA Press Announcements
+    type: rss
+    url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-fda-medwatch-safety-alerts"   # FDA MedWatch Safety Alerts
+    type: rss
+    url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/medwatch/rss.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "bio-fda-recalls-safety-alerts"   # FDA Recalls / Safety Alerts
+    type: rss
+    url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-ema-news-and-press-releases"   # EMA News and Press Releases
+    type: rss
+    url: "https://www.ema.europa.eu/en/news.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nci-news-releases-nih-cancer-arm"   # NCI News Releases (NIH cancer arm)
+    type: rss
+    url: "https://www.cancer.gov/publishedcontent/rss/syndication/rss/ncinewsreleases.rss"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 720
+    enrich: []
+    enabled: true
+
+  - id: "bio-nci-cancer-currents-blog"   # NCI Cancer Currents Blog
+    type: rss
+    url: "https://www.cancer.gov/publishedcontent/rss/news-events/cancer-currents-blog.rss"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-clinicaltrials-gov-rss-gene-therapy"   # ClinicalTrials.gov RSS (gene therapy)
+    type: rss
+    url: "https://clinicaltrials.gov/api/rss?term=gene+therapy"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-xtalks-life-science-news"   # Xtalks Life Science News
+    type: rss
+    url: "https://xtalks.com/feed/"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.4
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-r-biotech-reddit"   # r/biotech (Reddit)
+    type: rss
+    url: "https://www.reddit.com/r/biotech/.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-r-bioinformatics-reddit"   # r/bioinformatics (Reddit)
+    type: rss
+    url: "https://www.reddit.com/r/bioinformatics.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-r-crispr-reddit"   # r/CRISPR (Reddit)
+    type: rss
+    url: "https://www.reddit.com/r/CRISPR.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-r-genetics-reddit"   # r/genetics (Reddit)
+    type: rss
+    url: "https://www.reddit.com/r/genetics/.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-r-neuralink-reddit"   # r/Neuralink (Reddit)
+    type: rss
+    url: "https://www.reddit.com/r/neuralink.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-stat-biotech"   # STAT Biotech
+    type: rss
+    url: "https://www.statnews.com/category/health/biotech/feed/"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-stat-crispr-topic"   # STAT CRISPR topic
+    type: rss
+    url: "https://www.statnews.com/topic/crispr/feed/"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-synthetic-biology"   # Nature: Synthetic Biology
+    type: rss
+    url: "https://www.nature.com/subjects/synthetic-biology.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "bio-nature-gene-therapy"   # Nature: Gene Therapy
+    type: rss
+    url: "https://www.nature.com/subjects/gene-therapy.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-vaccines"   # Nature: Vaccines
+    type: rss
+    url: "https://www.nature.com/subjects/vaccines.rss"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "bio-fierce-biotech-2"   # Fierce Biotech
+    type: rss
+    url: "https://www.fiercebiotech.com/rss.xml"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-biotechnology-aop"   # Nature Biotechnology AOP
+    type: rss
+    url: "https://www.nature.com/nbt/journal/vaop/ncurrent/rss.rdf"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-medicine-aop"   # Nature Medicine AOP
+    type: rss
+    url: "https://www.nature.com/nm.rss"  # 2026-07 P1:旧 rss.rdf 301 目标直连(实测 200/dc:date 新鲜)
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nature-methods-aop"   # Nature Methods AOP
+    type: rss
+    url: "https://www.nature.com/nmeth/journal/vaop/ncurrent/rss.rdf"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-stat-biotech-2"   # STAT Biotech
+    type: rss
+    url: "https://www.statnews.com/category/biotech/feed"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-stat-pharma"   # STAT Pharma
+    type: rss
+    url: "https://www.statnews.com/category/pharma/feed/"  # 2026-07 P1:补尾斜杠免 301(实测 200)
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-fiercebiotech-biotech"   # FierceBiotech Biotech
+    type: rss
+    url: "https://www.fiercebiotech.com/rss/biotech/xml"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-fiercebiotech-medtech"   # FierceBiotech Medtech
+    type: rss
+    url: "https://www.fiercebiotech.com/rss/medtech/xml"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-biospace-fda"   # BioSpace FDA
+    type: rss
+    url: "https://www.biospace.com/FDA.rss"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-biospace-deals"   # BioSpace Deals
+    type: rss
+    url: "https://www.biospace.com/deals.rss"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-fda-what-s-new-drugs"   # FDA What's New: Drugs
+    type: rss
+    url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/drugs/rss.xml"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-fda-biologics"   # FDA Biologics
+    type: rss
+    url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/biologics/rss.xml"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-nibib-news"   # NIBIB News
+    type: rss
+    url: "https://www.nibib.nih.gov/rss"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    trust_published_at: false  # 2026-07 P1:feed 全 759 条无日期字段(date_suspect=1.0);NULL=进不了新鲜窗只当互证
+
+  - id: "bio-google-news-nmpa-biotech-approval"   # Google News NMPA Biotech Approval
+    type: rss
+    url: "https://news.google.com/rss/search?q=NMPA%20biotech%20OR%20%22National%20Medical%20Products%20Administration%22%20approval%20drug&hl=en-US&gl=US&ceid=US:en"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-hacker-news-bio-crispr-alphafold"   # Hacker News Bio/CRISPR/AlphaFold
+    type: rss
+    url: "https://hnrss.org/newest?q=biotech+OR+CRISPR+OR+AlphaFold+OR+%22drug+discovery%22&points=10"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "bio-github-alphafold"   # GitHub AlphaFold
+    type: rss
+    url: "https://github.com/google-deepmind/alphafold/releases.atom"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  # —— 2026-07-05 P2:生物医疗一手补缺。bioRxiv 补神经/生信两分区;补 NEJM/Lancet/PNAS 顶刊 +
+  #    Cell Reports in-press;补 礼来/再生元/Vertex/Amgen 大药企官方 IR + 英国 MHRA 监管(第三辖区)。
+  #    保守:weight 一手 0.7(biorxiv 随现役同门 0.6);顶刊 RSS 多为摘要级(付费墙,不设 fulltext)。
+  - id: "bio-biorxiv-neuroscience"   # bioRxiv Neuroscience 分区;一手预印;2026-07-05 P2 增补
+    type: rss
+    url: "https://connect.biorxiv.org/biorxiv_xml.php?subject=neuroscience"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-biorxiv-bioinformatics"   # bioRxiv Bioinformatics 分区;一手预印;2026-07-05 P2 增补
+    type: rss
+    url: "https://connect.biorxiv.org/biorxiv_xml.php?subject=bioinformatics"
+    domain: "bio"
+    category: "subfields"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-nejm-current"   # NEJM 新英格兰医学杂志当期目录;一手顶刊;2026-07-05 P2 增补(摘要级 feed)
+    type: rss
+    url: "https://www.nejm.org/action/showFeed?jc=nejm&type=etoc&feed=rss"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-lancet-current"   # The Lancet 当期;一手顶刊;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.thelancet.com/rssfeed/lancet_current.xml"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-pnas-current"   # PNAS 美国科学院院报当期;一手多学科顶刊;2026-07-05 P2 增补(摘要级 feed)
+    type: rss
+    url: "https://www.pnas.org/action/showFeed?type=etoc&feed=rss&jc=pnas"
+    domain: "bio"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-cell-reports-inpress"   # Cell Reports in-press(Cell Press 系);一手 原始研究;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.cell.com/cell-reports/inpress.rss"
+    domain: "bio"
+    category: "preprints-journals"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-eli-lilly-news-releases"   # 礼来 Eli Lilly 官方 IR 新闻室;一手 药企公告;2026-07-05 P2 增补
+    type: rss
+    url: "https://investor.lilly.com/rss/news-releases.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-regeneron-news-releases"   # Regeneron 官方 IR 新闻室;一手 药企公告;2026-07-05 P2 增补
+    type: rss
+    url: "https://investor.regeneron.com/rss/news-releases.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-vertex-pharmaceuticals-news-releases"   # Vertex 官方 IR 新闻室(细胞/基因疗法);一手 药企公告;2026-07-05 P2 增补
+    type: rss
+    url: "https://investors.vrtx.com/rss/news-releases.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "bio-mhra-uk-regulatory-activity"   # 英国药监 MHRA(GOV.UK atom);一手 第三辖区监管;2026-07-05 P2 增补(混 guidance 文档,靠下游判官分辨)
+    type: rss
+    url: "https://www.gov.uk/government/organisations/medicines-and-healthcare-products-regulatory-agency.atom"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "bio-amgen-news-releases"   # Amgen 官方 IR 新闻室;一手 药企公告;2026-07-05 P2 增补(候选最弱:偏会议预告+月更,压低权重)
+    type: rss
+    url: "https://investors.amgen.com/rss/news-releases.xml"
+    domain: "bio"
+    category: "regulatory-funding"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  # ====== 国际局势(domain=geo,82 源,pool.json verified + 2026-07-05 P2 增补)======
+  - id: "geo-al-jazeera-english-all-news"   # Al Jazeera English - All News
+    type: rss
+    url: "https://www.aljazeera.com/xml/rss/all.xml"
+    domain: "geo"
+    category: "non-western"
+    region: "Qatar / Middle East"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-deutsche-welle-dw-english-all"   # Deutsche Welle (DW) English - All
+    type: rss
+    url: "https://rss.dw.com/rdf/rss-en-all"
+    domain: "geo"
+    category: "non-western"
+    region: "Germany / Europe"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-france-24-english"   # France 24 English
+    type: rss
+    url: "https://www.france24.com/en/rss"
+    domain: "geo"
+    category: "non-western"
+    region: "France"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-south-china-morning-post-news"   # South China Morning Post - News
+    type: rss
+    url: "https://www.scmp.com/rss/91/feed"
+    domain: "geo"
+    category: "non-western"
+    region: "Hong Kong / China"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-nikkei-asia"   # Nikkei Asia
+    type: rss
+    url: "https://asia.nikkei.com/rss/feed/nar"
+    domain: "geo"
+    category: "non-western"
+    region: "Japan / Asia"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    trust_published_at: false  # 2026-07 P1:RDF feed 无任何日期字段(date_suspect=1.0);NULL=进不了新鲜窗只当互证
+
+  - id: "geo-the-diplomat"   # The Diplomat
+    type: rss
+    url: "https://thediplomat.com/feed/"
+    domain: "geo"
+    category: "non-western"
+    region: "Asia-Pacific"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "geo-times-of-india-top-stories"   # Times of India - Top Stories
+    type: rss
+    url: "https://timesofindia.indiatimes.com/rssfeedstopstories.cms"
+    domain: "geo"
+    category: "non-western"
+    region: "India"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-haaretz-latest-headlines-english"   # Haaretz - Latest Headlines (English)
+    type: rss
+    url: "https://www.haaretz.com/srv/all-headlines-rss"
+    domain: "geo"
+    category: "non-western"
+    region: "Israel"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-haaretz-middle-east-news-english"   # Haaretz - Middle East News (English)
+    type: rss
+    url: "https://www.haaretz.com/srv/middle-east-news-rss"
+    domain: "geo"
+    category: "non-western"
+    region: "Israel / Middle East"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-the-kyiv-independent"   # The Kyiv Independent
+    type: rss
+    url: "https://kyivindependent.com/news-archive/rss"
+    domain: "geo"
+    category: "non-western"
+    region: "Ukraine"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-the-moscow-times-news"   # The Moscow Times - News
+    type: rss
+    url: "https://www.themoscowtimes.com/rss/news"
+    domain: "geo"
+    category: "non-western"
+    region: "Russia (independent)"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "geo-channel-newsasia-cna"   # Channel NewsAsia (CNA)
+    type: rss
+    url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"
+    domain: "geo"
+    category: "non-western"
+    region: "Singapore / Asia"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    mixed: true
+
+  - id: "geo-the-hindu-national-news"   # The Hindu - National News
+    type: rss
+    url: "https://www.thehindu.com/news/national/feeder/default.rss"
+    domain: "geo"
+    category: "non-western"
+    region: "India"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-africanews"   # Africanews
+    type: rss
+    url: "https://www.africanews.com/feed/rss"
+    domain: "geo"
+    category: "non-western"
+    region: "Africa"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-bbc-news-world"   # BBC News — World
+    type: rss
+    url: "https://feeds.bbci.co.uk/news/world/rss.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+
+  - id: "geo-the-guardian-world"   # The Guardian — World
+    type: rss
+    url: "https://www.theguardian.com/world/rss"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-new-york-times-world"   # New York Times — World
+    type: rss
+    url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-washington-post-world"   # Washington Post — World
+    type: rss
+    url: "https://feeds.washingtonpost.com/rss/world"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: ["fulltext"]  # 2026-07 P1:feed 无正文/只一行摘要,瘦条目回源抓全文
+    enabled: true
+    mixed: true
+
+  - id: "geo-npr-world"   # NPR — World
+    type: rss
+    url: "https://feeds.npr.org/1004/rss.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-axios"   # Axios
+    type: rss
+    url: "https://api.axios.com/feed/"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-politico-us-politics"   # POLITICO (US) — Politics
+    type: rss
+    url: "https://rss.politico.com/politics-news.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-politico-europe"   # POLITICO Europe
+    type: rss
+    url: "https://www.politico.eu/feed/"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-sky-news-world"   # Sky News — World
+    type: rss
+    url: "https://feeds.skynews.com/feeds/rss/world.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-cbs-news-world"   # CBS News — World
+    type: rss
+    url: "https://www.cbsnews.com/latest/rss/world"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-fox-news-world"   # Fox News — World
+    type: rss
+    url: "https://moxie.foxnews.com/google-publisher/world.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-abc-news-international"   # ABC News — International
+    type: rss
+    url: "https://abcnews.com/abcnews/internationalheadlines"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-cbc-world"   # CBC — World
+    type: rss
+    url: "https://www.cbc.ca/webfeed/rss/rss-world"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-deutsche-welle-world-en"   # Deutsche Welle — World (EN)
+    type: rss
+    url: "https://rss.dw.com/rdf/rss-en-world"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-the-economist-international"   # The Economist — International
+    type: rss
+    url: "https://www.economist.com/international/rss.xml"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-financial-times-world"   # Financial Times — World
+    type: rss
+    url: "https://www.ft.com/world?format=rss"
+    domain: "geo"
+    category: "western-wires"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-semiconductor-export-controls"   # Google News: 半导体出口管制 (semiconductor export controls)
+    type: rss
+    url: "https://news.google.com/rss/search?q=semiconductor%20export%20controls%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-google-news-taiwan-strait-china-military"   # Google News: 台海军事 (Taiwan Strait China military)
+    type: rss
+    url: "https://news.google.com/rss/search?q=Taiwan%20Strait%20China%20military%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-ukraine-war-russia"   # Google News: 乌克兰战争 (Ukraine war Russia)
+    type: rss
+    url: "https://news.google.com/rss/search?q=Ukraine%20war%20Russia%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-gaza-israel-ceasefire"   # Google News: 加沙/以色列停火 (Gaza Israel ceasefire)
+    type: rss
+    url: "https://news.google.com/rss/search?q=Gaza%20Israel%20ceasefire%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-us-tariffs-trade"   # Google News: 美国关税与贸易 (US tariffs trade)
+    type: rss
+    url: "https://news.google.com/rss/search?q=US%20tariffs%20trade%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rare-earth-china-export"   # Google News: 稀土出口管制 (rare earth China export)
+    type: rss
+    url: "https://news.google.com/rss/search?q=rare%20earth%20China%20export%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-sanctions-russia"   # Google News: 对俄制裁 (sanctions Russia)
+    type: rss
+    url: "https://news.google.com/rss/search?q=sanctions%20Russia%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-iran-israel-strike"   # Google News: 伊朗/以色列冲突 (Iran Israel strike)
+    type: rss
+    url: "https://news.google.com/rss/search?q=Iran%20Israel%20strike%20when%3A7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "topic-googlenews"
+    region: "global"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-war-on-the-rocks"   # War on the Rocks
+    type: rss
+    url: "https://warontherocks.com/feed/"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-foreign-policy"   # Foreign Policy
+    type: rss
+    url: "https://foreignpolicy.com/feed/"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-foreign-affairs"   # Foreign Affairs
+    type: rss
+    url: "https://www.foreignaffairs.com/rss.xml"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-council-on-foreign-relations-cfr"   # Council on Foreign Relations (CFR)
+    type: rss
+    url: "https://feeds.feedburner.com/cfr_main"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-csis"   # CSIS
+    type: rss
+    url: "https://www.csis.org/rss.xml"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-ecfr-european-council-on-foreign-relations"   # ECFR (European Council on Foreign Relations)
+    type: rss
+    url: "https://ecfr.eu/feed/"
+    domain: "geo"
+    category: "thinktanks"
+    region: "EU"
+    lang: "en"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-brookings"   # Brookings
+    type: rss
+    url: "https://www.brookings.edu/feed/?post_type=article"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-atlantic-council"   # Atlantic Council
+    type: rss
+    url: "https://www.atlanticcouncil.org/feed/"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-rand-commentary"   # RAND Commentary
+    type: rss
+    url: "https://www.rand.org/blog.xml"
+    domain: "geo"
+    category: "thinktanks"
+    region: "US"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-bellingcat"   # Bellingcat
+    type: rss
+    url: "https://www.bellingcat.com/feed/"
+    domain: "geo"
+    category: "thinktanks"
+    region: "Global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-taiwan-strait"   # Google News RSS - 台海 (Taiwan Strait)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E5%8F%B0%E6%B5%B7&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-china-us-relations"   # Google News RSS - 中美关系 (China-US Relations)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E4%B8%AD%E7%BE%8E%E5%85%B3%E7%B3%BB&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-sanctions"   # Google News RSS - 制裁 中国 (Sanctions)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E5%88%B6%E8%A3%81%20%E4%B8%AD%E5%9B%BD&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-south-china-sea"   # Google News RSS - 南海 (South China Sea)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E5%8D%97%E6%B5%B7&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-google-news-rss-taiwan-elections"   # Google News RSS - 台湾 选举 (Taiwan Elections)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E5%8F%B0%E6%B9%BE%20%E9%80%89%E4%B8%BE&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-mofa-briefings"   # Google News RSS - 中国 外交部 (MOFA briefings)
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E4%B8%AD%E5%9B%BD%20%E5%A4%96%E4%BA%A4%E9%83%A8&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news-rss-guancha-via-site-filter"   # Google News RSS - 观察者网 (Guancha via site filter)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:guancha.cn&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-google-news-rss-huanqiu-via-site-filter"   # Google News RSS - 环球时报/环球网 (Huanqiu via site filter)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:huanqiu.com&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.8
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-google-news-rss-thepaper-via-site-filter"   # Google News RSS - 澎湃新闻 (ThePaper via site filter)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:thepaper.cn&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-reuters-via-google-news"   # Reuters 国际局势 via Google News
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:reuters.com%20world%20OR%20China%20OR%20Russia%20OR%20Ukraine%20OR%20tariffs%20OR%20chips&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-ap-via-google-news"   # AP 国际局势 via Google News
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:apnews.com%20international%20OR%20world%20OR%20Ukraine%20OR%20Gaza%20OR%20election&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-le-monde-international"   # Le Monde International
+    type: rss
+    url: "https://www.lemonde.fr/en/international/rss_full.xml"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-china-daily-world"   # China Daily World
+    type: rss
+    url: "http://www.chinadaily.com.cn/rss/world_rss.xml"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-scmp-china"   # SCMP China
+    type: rss
+    url: "https://www.scmp.com/rss/4/feed"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-google-news"   # Google News 中文：中美关税出口管制
+    type: rss
+    url: "https://news.google.com/rss/search?q=%E4%B8%AD%E7%BE%8E%20%E5%85%B3%E7%A8%8E%20%E5%87%BA%E5%8F%A3%E7%AE%A1%E5%88%B6%20AI%E8%8A%AF%E7%89%87%20%E5%8D%8A%E5%AF%BC%E4%BD%93&hl=zh-CN&gl=US&ceid=US:zh-Hans"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "zh"
+    weight: 1.0
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-the-hindu-international"   # The Hindu International
+    type: rss
+    url: "https://www.thehindu.com/news/international/feeder/default.rss"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-dawn-world"   # Dawn World
+    type: rss
+    url: "https://www.dawn.com/feeds/world"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    mixed: true
+
+  - id: "geo-times-of-israel"   # Times of Israel
+    type: rss
+    url: "https://www.timesofisrael.com/feed/"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-middle-east-monitor"   # Middle East Monitor
+    type: rss
+    url: "https://www.middleeastmonitor.com/feed/"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-gcaptain"   # gCaptain
+    type: rss
+    url: "https://gcaptain.com/feed/"
+    domain: "geo"
+    category: "general"
+    region: "global"
+    lang: "en"
+    weight: 0.8
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  # —— 2026-07-05 P2:国际局势补缺。非西方媒体(中东/半岛/俄流亡独立/日英文);印太智库 Lowy +
+  #    冲突预警 Crisis Group;官方一手(UN/美国务院/五角大楼);GN site: 路由的官方一手(ISW/EU 理事会/
+  #    NATO/中国外交部)。保守:一手 0.7、二手/聚合 0.6;GN 路由沿用现役 thepaper/reuters 惯例。
+  - id: "geo-al-monitor"   # Al-Monitor(全中东专业深报);二手;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.al-monitor.com/rss"
+    domain: "geo"
+    category: "non-western"
+    region: "Middle East"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-yonhap-english"   # 韩联社 Yonhap 英文(韩国国家通讯社 wire);一手 半岛;2026-07-05 P2 增补
+    type: rss
+    url: "https://en.yna.co.kr/RSS/news.xml"
+    domain: "geo"
+    category: "non-western"
+    region: "Korea"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-meduza-english"   # Meduza 英文(俄语区流亡独立媒体);二手;2026-07-05 P2 增补(对照 Kyiv Independent 乌方视角)
+    type: rss
+    url: "https://meduza.io/rss/en/all"
+    domain: "geo"
+    category: "non-western"
+    region: "Russia"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-japan-times"   # Japan Times(日本最大英文报,免费可抓);二手;2026-07-05 P2 增补(替 Kyodo/NHK 英文已死)
+    type: rss
+    url: "https://www.japantimes.co.jp/feed/"
+    domain: "geo"
+    category: "non-western"
+    region: "Japan / Asia"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-lowy-interpreter"   # Lowy Institute The Interpreter(澳洲头牌智库,印太视角);一手;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.lowyinstitute.org/the-interpreter/rss.xml"
+    domain: "geo"
+    category: "thinktanks"
+    region: "Australia / Indo-Pacific"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-crisis-group"   # International Crisis Group(冲突预警实地调研);一手 低频;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.crisisgroup.org/rss"
+    domain: "geo"
+    category: "thinktanks"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+    trust_published_at: false  # 2026-07 P2:pubDate 非标准格式('Friday, June 5, 2026 - 10:38')feedparser 解析不了→回落抓取时间=假日期;存 NULL 只当互证,不当新鲜锚
+
+  - id: "geo-isw-assessments-googlenews"   # ISW 每日俄乌战况评估(GN site: 路由);聚合(内容一手);2026-07-05 P2 增补(官网直连全被封,GN 是唯一活路)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:understandingwar.org&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "thinktanks"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-un-news-official"   # 联合国官方新闻 UN News;一手;2026-07-05 P2 增补(feed 强制 gzip,抓取端须解压,httpx 默认已处理)
+    type: rss
+    url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    domain: "geo"
+    category: "official-primary"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-un-press-meetings"   # 联合国会议纪要与新闻稿(安理会/秘书长);一手;2026-07-05 P2 增补(工作日高密度,周末空档)
+    type: rss
+    url: "https://press.un.org/en/rss.xml"
+    domain: "geo"
+    category: "official-primary"
+    region: "global"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-us-state-press-releases"   # 美国务院官方新闻稿;一手;2026-07-05 P2 增补(state.gov WAF 抽风,须带浏览器 UA+重试,别把 WAF 页当空 feed)
+    type: rss
+    url: "https://www.state.gov/rss-feed/press-releases/feed/"
+    domain: "geo"
+    category: "official-primary"
+    region: "US"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-us-dow-press-releases"   # 五角大楼 Department of War 官方新闻稿(war.gov,已改名);一手;2026-07-05 P2 增补
+    type: rss
+    url: "https://www.war.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=9&Site=945&max=10"
+    domain: "geo"
+    category: "official-primary"
+    region: "US"
+    lang: "en"
+    weight: 0.7
+    freshness_hours: 336
+    enrich: []
+    enabled: true
+
+  - id: "geo-eu-council-googlenews"   # 欧盟理事会新闻室(GN site: 路由);聚合(内容一手);2026-07-05 P2 增补(consilium 直连本机 CF 解析超时,GN 是唯一稳路)
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:consilium.europa.eu%20when:7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "official-primary"
+    region: "EU / Europe"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-nato-newsroom-googlenews"   # NATO 官方新闻室(GN site: 路由,官网砍了 RSS);聚合(内容一手);2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:nato.int%20when:7d&hl=en-US&gl=US&ceid=US:en"
+    domain: "geo"
+    category: "official-primary"
+    region: "global"
+    lang: "en"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+
+  - id: "geo-cn-mfa-site-googlenews"   # 中国外交部记者会/声明(GN site: fmprc/mfa 路由,官网无 RSS);聚合(内容一手);2026-07-05 P2 增补
+    type: rss
+    url: "https://news.google.com/rss/search?q=site:fmprc.gov.cn%20OR%20site:mfa.gov.cn%20when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    domain: "geo"
+    category: "cn-perspective"
+    region: "CN"
+    lang: "zh"
+    weight: 0.6
+    freshness_hours: 168
+    enrich: []
+    enabled: true
+    mixed: true

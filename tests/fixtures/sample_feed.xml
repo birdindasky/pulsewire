@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>pulsewire local fixture</title>
+    <link>https://example.com</link>
+    <description>file:// 离线测试用样例 feed</description>
+    <item>
+      <title>Sample headline for offline parsing</title>
+      <link>https://example.com/a</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+      <description>占位正文。</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,44 @@
+# 密钥 / 环境
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 构建产物 / 渲染输出
+dist/
+build/
+web/rendered/
+web/app/
+web/mockups/
+*.png
+# 开源门面素材(README 引用)要提交——豁免上面的全局 *.png
+!assets/*.png
+
+# 档案运行时产物(每日快照 + 重建的档案首页;旧系统抢救件 web/archive/legacy/ 要提交,其 300M 图卡被 *.png 兜住)
+web/archive/daily/
+web/archive/daily-backup-*/
+web/archive/index.html
+
+# launchd 调度生成物(机器相关绝对路径 + 运行日志)
+deploy/
+
+# Electron 桌面 app:node 依赖 + 构建产物(icon.icns 提交=构建必需;icon-1024.png 被上面 *.png 兜住,可由 make_icon.py 重生成)
+node_modules/
+desktop/dist/
+!desktop/icon/icon.icns
+
+# 工具 / 系统
+.DS_Store
+# 注:uv.lock 应提交(应用需可复现构建),故不忽略
+
+# 交付哨兵收据(运行时状态,机器本地)
+deploy/state/

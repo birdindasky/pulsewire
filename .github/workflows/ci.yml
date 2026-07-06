@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: pulsewire
+          POSTGRES_USER: pulsewire
+          POSTGRES_PASSWORD: pulsewire
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pulsewire -d pulsewire"
+          --health-interval 5s --health-timeout 3s --health-retries 12
+    env:
+      PULSEWIRE_DATABASE__HOST: localhost
+      PULSEWIRE_DATABASE__PASSWORD: pulsewire
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      # uv sync 按 uv.lock 建项目 venv(--system 会撞 runner 的 PEP 668 外部管理限制)
+      - name: Install deps (dev)
+        run: uv sync --extra dev
+
+      - name: Lint
+        run: uv run ruff check src tests migrations
+
+      - name: Validate config
+        run: uv run pulsewire validate-config
+
+      - name: Run migrations
+        run: uv run alembic upgrade head
+
+      - name: Tests (incl. DB round-trip + delivery idempotency)
+        run: uv run pytest -q

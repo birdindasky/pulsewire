@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>no-date fixture</title>
+    <link>https://example.com</link>
+    <description>条目无 pubDate,用于验证 published_at 兜底为抓取时间</description>
+    <item>
+      <title>Headline without a publish date</title>
+      <link>https://example.com/no-date</link>
+      <description>无发布时间。</description>
+    </item>
+  </channel>
+</rss>

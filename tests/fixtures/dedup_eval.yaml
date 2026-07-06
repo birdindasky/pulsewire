@@ -1,0 +1,58 @@
+# 去重评测集(阶段 3 校准 similarity_threshold + 回归防护)。
+# 正例 same=true:应判为"同一事件"→ 应合并。
+# 负例 same=false:不同事件 → 绝不能合并(误合并最伤日报可信度,宁漏勿误)。
+#
+# 真实数据教训(82 条实跑):
+#   - 同一新闻被两个源(Algolia / hnrss)抓到 → 标题几乎相同 → cos≈1.0(near_dup,务必合并)。
+#   - "相关但不同"(如 langchain vs langflow 两个不同项目)→ cos≈0.76,绝不能合(related_diff)。
+#   - 跨语言松改写 cos 落在 0.66~0.92,与 related_diff 噪声带重叠 → 生产阈值 0.88 下宁可漏掉松改写,
+#     只稳合 near_dup 与高置信跨语言;这是有意的"宁漏勿误"取舍。
+pairs:
+  # --- 正例:同源异库近重复(标题几乎一致,生产中的主力合并场景)---
+  - a: "7.8 magnitude earthquake shakes southern Philippines, tsunami warning issued"
+    b: "7.8 magnitude earthquake shakes southern Philippines, tsunami warning issued"
+    same: true
+    kind: near_dup
+  - a: "DeepSeek V4 Pro beats GPT-5.5 Pro on precision"
+    b: "DeepSeek V4 Pro beats GPT-5.5 Pro on precision benchmark"
+    same: true
+    kind: near_dup
+  - a: "Texas grid flags risks as data centers fail voltage tests"
+    b: "Texas grid flags risks as data centers, crypto sites fail voltage tests"
+    same: true
+    kind: near_dup
+  # --- 正例:高置信跨语言/同语改写(阈值内能合)---
+  - a: "OpenAI 发布 GPT-5.5,推理能力大幅提升"
+    b: "OpenAI unveils GPT-5.5 with major reasoning gains"
+    same: true
+    kind: cross-lingual
+  - a: "GPT-5.5 今日上线:OpenAI 最新模型正式登场"
+    b: "OpenAI 发布 GPT-5.5,推理能力大幅提升"
+    same: true
+    kind: paraphrase-zh
+  # --- 负例:相关但不同(真实失败模式,必须顶住)---
+  - a: "langchain-ai/langchain"
+    b: "langflow-ai/langflow"
+    same: false
+    kind: related_diff
+  - a: "OpenAI 发布 GPT-5.5"
+    b: "Google 发布 Gemini 3.0 大模型"
+    same: false
+    kind: related_diff
+  - a: "美联储宣布加息 25 个基点"
+    b: "欧洲央行宣布维持利率不变"
+    same: false
+    kind: related_diff
+  - a: "苹果发布 M5 款 MacBook Pro"
+    b: "苹果发布 iPhone 18 系列"
+    same: false
+    kind: related_diff
+  # --- 负例:完全无关 ---
+  - a: "OpenAI 发布 GPT-5.5"
+    b: "美联储宣布加息 25 个基点"
+    same: false
+    kind: unrelated
+  - a: "Apple announces new MacBook Pro"
+    b: "Nvidia reports record quarterly revenue"
+    same: false
+    kind: unrelated

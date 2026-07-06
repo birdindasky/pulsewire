@@ -1,0 +1,37 @@
+# pulsewire 本地容器栈。阶段 0 验收:`docker compose up` 起得来,app 连上 postgres,配置校验通过。
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: pulsewire
+      POSTGRES_USER: pulsewire
+      POSTGRES_PASSWORD: ${PULSEWIRE_DATABASE__PASSWORD:-pulsewire}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulsewire -d pulsewire"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false   # 没有 .env 也能起(用默认密码);密钥按需在 .env 里补
+    environment:
+      # 容器内连同栈的 postgres 服务(覆盖 config.yaml 里的 localhost)
+      PULSEWIRE_DATABASE__HOST: postgres
+    # 启动先跑迁移,再做连库自检(阶段 0/1 验收)
+    command: ["sh", "-c", "alembic upgrade head && pulsewire healthcheck"]
+    volumes:
+      - rendered:/app/web/rendered
+
+volumes:
+  pgdata:
+  rendered:

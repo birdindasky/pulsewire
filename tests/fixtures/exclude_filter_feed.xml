@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>exclude-filter test fixture</title>
+    <link>https://example.com</link>
+    <description>url/title 排除过滤测试:官方文留、社区路径踢、alpha 预发布踢</description>
+    <item>
+      <title>Official launch post keep me</title>
+      <link>https://example.com/blog/official-post</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+      <description>official body</description>
+    </item>
+    <item>
+      <title>Community rambling drop by url</title>
+      <link>https://example.com/blog/some-user/community-post</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+      <description>community body</description>
+    </item>
+    <item>
+      <title>0.143.0-alpha.35 drop by title</title>
+      <link>https://example.com/releases/alpha-35</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+      <description>prerelease body</description>
+    </item>
+  </channel>
+</rss>

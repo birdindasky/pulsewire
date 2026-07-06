@@ -1,0 +1,159 @@
+# pulsewire 全局配置(非密钥)。密钥走 .env / 环境变量,绝不进此文件。
+# 嵌套项可被环境变量覆盖:PULSEWIRE_<段>__<键>(分隔符 __)。
+# 例:数据库密码 = PULSEWIRE_DATABASE__PASSWORD
+
+app:
+  name: pulsewire
+  environment: dev            # dev | prod
+  timezone: America/Los_Angeles   # 与跑它的机器本地时区保持一致;报告日期/run_id/交付幂等键/补课闸全按此时区,治跨时区日期错位
+
+database:
+  host: localhost             # docker compose 内由环境变量覆盖为 postgres
+  port: 5432
+  name: pulsewire
+  user: pulsewire
+  # password 走 env:PULSEWIRE_DATABASE__PASSWORD(默认见 .env.example)
+
+fetch:
+  concurrency: 32             # 并发抓取上限
+  timeout_seconds: 20
+  retry_max: 3
+  rate_limit_per_host: 4      # 每主机每秒请求数
+  max_items_per_source: 50    # 每源每次最多取最新 N 条(兜住吐全量历史的源;源可用 max_items 覆盖)
+  # 浏览器 UA:部分源(小宇宙 xyzfm 等)对非浏览器 UA 返回 403
+  user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+
+dedup:
+  url_normalize: true         # 一级:URL 规范化(item_id 即 URL+指纹级幂等,入库时已挡)
+  fingerprint: true           # 二级:内容指纹(标题+正文完全相同)
+  embedding:
+    enabled: true
+    provider: mlx             # 2026-06-23 迁移:local(jina-v3/CPU烤机)→mlx(Qwen3/Apple GPU)。回滚=改回 local + 恢复 ~/pulsewire-db-backups 或重嵌 jina
+    model: mlx-community/Qwen3-Embedding-0.6B-8bit  # Qwen3-0.6B 8bit,1024 维(MLX/Metal ~633MB);治烤机,中文质量平 jina(三关验收)
+    # cache_dir: null               # 模型缓存目录,默认 ~/.cache/pulsewire/fastembed(稳定,不放系统临时目录)
+    similarity_threshold: 0.87 # 2026-06-23 Qwen3 重标:近重复评测集(tests/fixtures/dedup_eval.yaml)实标=零误合并(最高难负 0.868)+ 100% 召回(最低同事件 0.874);取 0.87 卡中间。原 jina 0.88
+    recency_window_hours: 72   # 语义近邻只在近 72 小时内找(去重窗口,旧事件不反复合并)
+
+enrich:                       # 富化:给条目挂 value + source_id(数字回源对账用,来自入库事实)
+  fulltext: false             # 正文全文抓取(trafilatura,走网络较慢);默认关,用 `enrich --fulltext` 临时开
+  fulltext_max_chars: 20000   # 全文截断上限(进 facts.fulltext)
+  # ---- 按源全文富化(2026-07 源升级 P1):sources.yaml 里 enrich:["fulltext"] 的源不开全局开关也抓,
+  #      治 summary-only 源 body_rate≈0 过不了空壳护栏。有界成本四闸(值=代码默认,写明便于调参):----
+  fulltext_recency_hours: 48  # 只抓最近 N 小时新入库(fetched_at)的条目
+  fulltext_max_per_run: 300   # 每 run 全文抓取硬顶(计尝试数)
+  fulltext_min_content_chars: 300  # 原始 content 短于此才回源(瘦正文判据)
+  fulltext_concurrency: 6     # 回源并发(共享 FetchClient,受每主机限速)
+
+rank:                         # 兴趣分类:embedding 召回 + 热点直通 → 规则粗排 → LLM 主编选题 + 新鲜度门 + 限额
+  engine: events              # 2026-06-19 切上线:legacy→events 全局事件池选稿(五柱;/eval 37.5/38 过+用户签字)。回滚=改回 legacy 重跑
+  recall_limit: 120           # 召回候选上限(够大,留足新鲜候选给新鲜度门筛;门在精排前,不增 LLM 成本)
+  recall_recency_hours: 720   # 召回只取近 N 小时内(或无日期)的相似项,避免召回池被陈旧相似项占满(30 天)
+  final_limit: 10             # 最终输出上限(2026-06-18 用户要求 20→10:每板块每天只留最热 10 条,精简)
+  rerank_provider: deepseek   # deepseek=litellm 调 DeepSeek(需 PULSEWIRE_DEEPSEEK_API_KEY) | rule=只用规则分($0)
+  rerank_model: deepseek-v4-pro # 2026-06-29 flash→pro(用户"统一用pro"):flash 抽风(判官判飘/精排漂)是 AI 板反复出水货/边缘货的总根;pro 稳,质量优先该花就花。回滚=改回 deepseek-v4-flash。token 上限已 2048 不怕推理截断
+  rerank_blend: 0.6           # 终分 = 0.6*LLM新闻价值分 + 0.4*规则分
+  per_category_limit: 8       # 各类限额(防单一类目刷屏)
+  per_source_limit: 2         # 单源限额(防单一源刷屏,如官方技术博客一天发 N 篇)
+  select_sim_dedup: 0.74      # 2026-06-23 Qwen3 重标(原 jina 0.70→0.74,操作点匹配保召回;中信心,P4 复核)。选稿去重:与已选≥此值=同事件,跳过
+                              # 旧 jina 标定(2026-06-14):AI #6/#7「Anthropic 下架」重复卡余弦=0.71,旧值 0.8 漏合并;三领域回放≥0.70 全真同事件。
+  event_dedup_min_sim: 0.60   # 2026-06-23 Qwen3 重标(原 jina 0.55→0.60,操作点匹配;⚠️低信心,P4 真跑确认送判量)。事件复判带下界,低于此=明显不同事件不送 LLM
+  # 事件热度:近窗内"多少个不同源在报相似内容"。dedup 0.88 只合并"同一篇",不聚"同一事件",
+  # 头条(发布会的 N 个帖 + 各家报道)会散成几十簇——热度用宽松阈值把"多源同报"信号找回来。
+  heat_window_hours: 36       # 热度统计窗口(只看"正在发生"的)
+  heat_sim_threshold: 0.76    # 2026-06-23 Qwen3 重标(原 jina 0.75→0.76,四法收敛/高信心)。宽松阈值,只计数不合并存储
+  heat_min_sources: 3         # ≥N 个源在报才算热点
+  heat_top_reps: 15           # 热点直通:每轮最多补多少个热点代表进候选池(不走兴趣相似度;0=关闭)
+  github_board_limit: 10      # GitHub 开源热榜:取近期涨速最高的前 N 个 AI repo(0=关闭;2026-06-26 从 20→10 精简)
+  github_board_recency_days: 30  # 热榜只取近 N 天内(或无日期)推送过的 repo(避开陈年项目)
+  old_item_age_hours: 168     # 超过 7 天算"老项"
+  old_item_limit: 5           # 老项限额(防陈旧内容占位)
+  event_pool:                 # 选稿引擎 v2 事件池(rank.engine=events 时生效;其余参数走 EventPoolCfg 默认)
+    judgment_cache_enabled: true  # 2026-07-04 开:S1 判决缓存(五判官裁决按内容+口径哈希落库复用,治 f20 逐日重判白烧钱)。忠实性=确定性证明(暖缓存走真 filter_* 逐字节同选稿)+独立考官两轮 PASS;真机影子 A/B:第二遍新判 900→354(省 61% 判官调用)、墙钟 -42%,same_event 命中 57%(键修后,随天数累积升)。只缓存全程干净票(故障/预算饿死不缓存)。回滚=false
+    magnitude_gate_enabled: true  # 2026-06-22 开:重磅度闸 B 档语义"水货"筛(砍论坛闲聊/花边,留分析/深源;护 v2 深源红线)。验收=离线A/B+独立盲考官误杀0。回滚=false。设计见 docs/DESIGN.md §2
+    topic_gate_enabled: true      # 2026-06-25 开:P0 话题闸治 AI 板混入非 AI(电视剧/航空/手机硬件/地缘)。粗砍跨领域跑题、本领域商业/金融/政治角度全留(命门=零误杀)。验收三证:定向回归17/18+独立盲考官42题PASS(误杀0/22)+真数据A/B 7踢全对geo误杀消失。回滚=false。判官 events/topic_judge.py
+    topic_judge_votes: 3          # 2026-07-01:话题闸多数票(3=需2票判跑题才踢,治单判抖动把跑题货放进AI板,如"第七天/群星"类)。⚠️投票→话题闸调用约翻倍;DeepSeek余额紧时改 1 回退单判省 token。
+    board_classifier_enabled: true  # 2026-06-28 开:治综合源乱跑 + 放宽 AI 板用(综合源里广义 AI 货读内容归对板,非 AI 丢)。配合 AI 板 144h 窗填满。验收三关(盲考官23/23+codex GO+真跑踢18)。回滚=false。判官 events/board_classifier.py;广义 AI 画像复用上方 topic_portraits.ai
+    worthiness_gate_enabled: true   # 2026-06-29 开(用户"纯,没有就不报,所有板块一样"):水货闸之后再判"够不够格当今日要闻",不够格踢、不硬凑数(够格不足 final_limit 就少报)。比水货闸严:小众论文/传闻否认/论坛炫耀/蹭关键词也踢;fail-safe=留(不因故障误杀真新闻)。便宜LLM测9/10(真新闻零误杀)。回滚=false。判官 events/worthiness_judge.py
+    clip_memory_enabled: true       # 2026-07-05 开(用户拍板"全上",治日报逐日重复:实测相邻两日重合39%):已剪记忆闸。账本=在追线挂线痕(零新表);已剪过的事件材料全旧直接踢、有新材料交 novelty 判官判"有没有值得再剪一刀的新进展",没有→踢腾位给新事,有→留+盖"追·第N天"章+写稿只写增量。fail-open(账本/判官故障、预算耗尽一律留,最坏=回到重复现状)。回滚=false(①选稿闸+③增量写稿即刻停;②"追·第N天"章是代码层视觉改动、走既有在追线数据,不随本开关——codex 2026-07-05 审校口径)。判官 events/clip_memory.py
+    topic_portraits:              # 每板大领域边界画像(防误杀;2026-06-25 首次 A/B 暴露 geo 误杀"英国首相辞职"后补)
+      ai: "AI 大领域:大模型 / AI 编程助手 / AI 芯片与 AI 算力(GPU·TPU·AI 加速器、AI 训练 / 推理集群与基础设施)/ AI 公司的产业·融资·IPO·收购·治理 / AI 政策监管 / AI 研究 / AI 应用落地。只要主角是 AI 相关公司或技术,哪怕讲它的商业 / 金融 / 政治角度都算属于。娱乐影视、纯消费硬件(非 AI)、航空、地缘冲突本身不算;通用超级计算机 / 超算 TOP500 排名 / 高性能计算(HPC)本身也不算 AI(除非主角明确是 AI 训练或 AI 芯片)。"
+      geo: "国际局势大领域:国际冲突 / 战争 / 外交 / 制裁 / 大国博弈 / 能源安全,也包括各国国内重大政治(换届 / 大选 / 政府更替 / 政局动荡 / 重大政策)、跨国突发(疫情 / 灾难)。只有娱乐 / 体育 / 明星讣告 / 纯社会刑案 / 与公共无关的个人新闻才算跑题。"
+      bio: "生物医疗大领域:新药 / 临床试验 / 疗法 / 医疗器械 / 诊断 / 基因与细胞治疗 / 药企产业与监管(FDA)/ 生命科学研究。这些都属于,哪怕是药企的并购 / 财务角度。娱乐 / 体育 / 纯消费电子 / 地缘政治本身不算。"
+  weights:                    # 规则粗排各因子权重
+    recall: 0.5               # 语义召回相似度
+    source_weight: 0.2        # 源权重(sources.yaml 的 weight)
+    recency: 0.2              # 新鲜度(距发布时间)
+    event: 0.1                # 大事信号(簇 source_count / event.min_sources)
+    thread: 0.1               # 持续关注(step6-B):属于多天在追线的簇加分,持续发酵的大事更靠前(0=关)
+
+threads:                      # 在追事件线(主体短语向量匹配)
+  semantic_threshold: 0.74    # 2026-06-23 Qwen3 重标(原 jina 0.70→0.74,中信心,P4 复核)。主体短语 embedding 余弦≥此值进候选
+  judge_model: deepseek-v4-pro  # 2026-06-29 flash→pro(用户"统一用pro"):判官(水货闸/分板/话题/同事件去重/够格闸)从 flash 换 pro 治抽风。⚠️2026-07-01 纠正:主体抽取 subject_model 是独立字段、**仍是 flash**(此前注释误称也换了 pro,其实没换;抽主体是简单活、flash 更省,有意保留)。回滚=改回 deepseek-v4-flash。token 上限 judge 已 2048
+
+event:                        # "大事"= 日报内的显著度信号(已锁:多源汇聚为主)
+  min_sources: 3              # 当日 ≥N 个不同源报同一事件 → 日报里标重点
+  window_minutes: 1440        # 汇聚时间窗(每日全量,默认一整天)
+  # 注:v1 不做单独的高频"大事即时推";大事在每日跑里检测并标显著度。
+
+summarize:
+  backend: api                # api=litellm按token(DeepSeek/Opus/GPT) | cli=调本地登录的claude/codex(走订阅,灰色风险自负)
+  provider: deepseek          # backend=api 时用哪家(litellm)
+  model: deepseek-v4-pro      # 总结+断言审计用强档(日报脸面);精排留 deepseek-v4-flash(粗活)。也可换 claude-opus-4-8 / gpt-5.5 等
+  json_schema_retry: 2        # JSON Schema 失败:重试→repair→该块跳过(不崩)
+  prompt_caching: true
+  prompt_content_max_chars: 6000  # 喂给模型的每条目正文上限(insight 深度解析要更多素材;有全文/逐字稿时给足上下文)
+  batch_size: 6               # 分块总结:每次 LLM 最多产几条(防单次响应超模型输出上限被截断成坏 JSON)
+  max_tokens: 8192            # 单次 LLM 输出 token 上限(headroom;DeepSeek-chat 上限 8192)
+  # backend=cli 时:
+  cli_command: null           # claude | codex(只产文本、禁用工具,LLM 只当一站)
+  cli_fallback_to_api: true   # CLI 失败/限流/超时 → 回退 DeepSeek API,绝不开天窗
+  risk_min_sources: 2         # 高风险定性断言闸门(IPO/倍数话术/临床突破/战报制裁):多源同报≥N才放行,单源标待核实;1=关闭
+  llm_audit: true             # LLM 断言审计(闸门治本层):复审单源放行条目,逮换措辞的"传闻当事实";失败降级只剩关键词闸门
+
+render:                       # 出图(Jinja2 → 无头 Chrome → PNG,D 风格 v2-B 深墨头)
+  width: 1080                  # 图卡固定宽度
+  output_dir: web/rendered    # 相对仓库根(已 gitignore)
+  use_system_chrome: false    # false=playwright 自带 chromium(可移植)| true=系统 Chrome(channel=chrome)
+  settle_ms: 800              # set_content 后等字体/布局稳定再截图
+
+deliver:
+  feishu:
+    enabled: true             # 主渠道:飞书
+    mode: app                 # app=自建应用推图(发 PNG 到 open_id 私信);webhook=自定义机器人文字卡
+  wechat:
+    enabled: true             # Server酱,best-effort
+    best_effort: true         # 超免费额度则跳过,靠飞书+App 兜底
+  webapp:
+    enabled: true             # 网页 App:分片 data.json + 轻壳
+
+run:                          # 一次完整流水线跑(fetch→…→deliver)的入口(阶段 7)
+  interest: "AI 编程助手与大语言模型"  # 单兴趣 back-compat:`pulsewire run "<兴趣>"` 显式传时用
+  tags: [llm, ai]             # 兴趣标签
+  # 多领域:每个领域 = 一份独立兴趣(rank→summarize→render 各跑一遍),聚合进 App「今日」下拉一栏。
+  # key 对上 sources.yaml 里源的 domain(rank 按它过滤候选,防跨领域串味)。
+  # required=true 的领域(主报 AI)失败则整跑失败;false 的次领域(bio/geo)失败只告警跳过,不拖垮主报。
+  domains:
+    - key: ai
+      label: "AI"
+      interest: "AI 编程助手与大语言模型"
+      tags: [llm, ai]
+      required: true
+      freshness_window_hours: 144  # 2026-06-28:AI 板单独放宽到 6 天填满(真鲜 AI 货稀+源翻炒旧货,48h 只剩 3 条;用户拍板"近几天")。bio/geo 不设=留 48h。配诚实"X天前"标注。回滚=删本行。见 docs/DESIGN.md §2.7
+    - key: bio
+      label: "生物医疗"
+      interest: "生物医疗与生命科学前沿突破(新药/临床试验/基因编辑/脑机接口/AI 制药)"
+      tags: [bio, health]
+      required: false
+    - key: geo
+      label: "国际局势"
+      interest: "国际局势与地缘政治(冲突/外交/制裁/大国博弈/能源安全)"
+      tags: [geo, politics]
+      required: false
+  trigger_type: daily         # run_id + 投递幂等键的触发类型(daily | event)
+  fulltext: false             # run 内 enrich 是否抓全文(走网络较慢,默认关)
+  transcript: true            # 精排后对入选条目抓网页正文/逐字稿(只 ~final_limit 条,喂总结提质)
+  total_timeout_minutes: 150  # 2026-06-29 上调 110→150:统一 pro + 加要闻够格闸后判官更慢(pro 单调更久 + 多一道闸),实测 pro 全量跑 ~59min、加 worthiness 闸预计 ~80-90min;150 留足余量防看门狗误杀。质量优先接受日跑变慢。回滚=改回 110(配 flash 时)
+
+retention:
+  mode: forever               # 永久全留 + 定期备份
+  backup_enabled: true

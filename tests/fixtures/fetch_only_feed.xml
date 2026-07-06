@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>fetch-only test fixture</title>
+    <link>https://example.com</link>
+    <description>仅供 fetch 集成测试用,标题唯一,避免与 sources.yaml 的 local-fixture 撞 item_id</description>
+    <item>
+      <title>Fetch integration test only headline</title>
+      <link>https://example.com/fetch-only-test</link>
+      <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+      <description>占位正文。</description>
+    </item>
+  </channel>
+</rss>

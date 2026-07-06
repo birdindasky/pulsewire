@@ -1,0 +1,25 @@
+{
+  "name": "pulsewire-desktop",
+  "version": "1.0.0",
+  "description": "Pulsewire 日报桌面 app(Electron 壳,加载项目目录里的实时日报)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac --dir"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.pulsewire.desktop",
+    "productName": "Pulsewire",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "package.json", "icon/icon.icns"],
+    "mac": {
+      "icon": "icon/icon.icns",
+      "target": "dir",
+      "category": "public.app-category.news"
+    }
+  }
+}
