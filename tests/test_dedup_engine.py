@@ -21,6 +21,25 @@ from pulsewire.store.tables import Cluster, Item
 _SOURCES = ("dedup-test-a", "dedup-test-b", "dedup-test-c")
 
 
+def test_mlx_provider_on_non_apple_gives_actionable_error(monkeypatch):
+    """非 Apple Silicon(mlx_embeddings 装不到)选 provider=mlx 时,报一句能照做的话、
+    指向 provider=local 跨平台退路,而不是首次 embed 时抛看不懂的 ModuleNotFoundError。
+    模拟"没装 mlx":让 find_spec 对 mlx_embeddings 返回 None(此测试在任何平台都跑)。"""
+    import importlib.util as _ilu
+
+    from pulsewire.dedup import embedding as _emb
+
+    settings = get_settings()
+    monkeypatch.setattr(settings.dedup.embedding, "provider", "mlx")
+    real_find_spec = _ilu.find_spec
+    monkeypatch.setattr(
+        _emb.importlib.util, "find_spec",
+        lambda name, *a, **k: None if name == "mlx_embeddings" else real_find_spec(name, *a, **k),
+    )
+    with pytest.raises(RuntimeError, match="provider 改为 local"):
+        _emb.get_embedder(settings)
+
+
 @pytest.mark.asyncio
 async def test_cross_source_same_event_merges():
     settings = get_settings()

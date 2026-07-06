@@ -28,8 +28,12 @@ dedup:
   fingerprint: true           # 二级:内容指纹(标题+正文完全相同)
   embedding:
     enabled: true
-    provider: mlx             # 2026-06-23 迁移:local(jina-v3/CPU烤机)→mlx(Qwen3/Apple GPU)。回滚=改回 local + 恢复 ~/pulsewire-db-backups 或重嵌 jina
-    model: mlx-community/Qwen3-Embedding-0.6B-8bit  # Qwen3-0.6B 8bit,1024 维(MLX/Metal ~633MB);治烤机,中文质量平 jina(三关验收)
+    # provider: mlx=Apple Silicon 走 MLX/Metal(默认,最快);local=fastembed/ONNX 纯 CPU 跨平台。
+    # ⚠️ 非 Apple Silicon(Intel/Linux/Windows/AMD)必须改成 local——mlx-embeddings 只在苹果芯片装得上。
+    #    改 local 时把下面的 model 一并改回 jinaai/jina-embeddings-v3(fastembed 现成、1024 维、中文够用)。
+    # (2026-06-23 从 local/jina 迁到 mlx/Qwen3 是治本机全表重嵌时 CPU 烤机;日常小批量 CPU 跑 jina 无此问题。)
+    provider: mlx
+    model: mlx-community/Qwen3-Embedding-0.6B-8bit  # Apple 档:Qwen3-0.6B 8bit,1024 维(MLX/Metal ~633MB)。非苹果改 jinaai/jina-embeddings-v3
     # cache_dir: null               # 模型缓存目录,默认 ~/.cache/pulsewire/fastembed(稳定,不放系统临时目录)
     similarity_threshold: 0.87 # 2026-06-23 Qwen3 重标:近重复评测集(tests/fixtures/dedup_eval.yaml)实标=零误合并(最高难负 0.868)+ 100% 召回(最低同事件 0.874);取 0.87 卡中间。原 jina 0.88
     recency_window_hours: 72   # 语义近邻只在近 72 小时内找(去重窗口,旧事件不反复合并)

@@ -1,12 +1,15 @@
 """Embedding 后端:把文本转成向量(语义近重复用)。
 
-- local : fastembed 本地跑(默认 jina-embeddings-v3,$0、离线、1024 维)。
+- mlx   : mlx-embeddings(Apple Silicon/Metal,默认 Qwen3-0.6B-8bit,$0 离线)。**仅 Apple Silicon**。
+- local : fastembed(ONNX Runtime,默认 jina-embeddings-v3,$0 离线,1024 维)。
+          **跨平台**:Linux / Windows / Intel Mac / AMD 都能纯 CPU 跑,非苹果机器走这条。
 - jina  : Jina API(需 key,阶段 3 暂未实现,留接口)。
-模型重(首次下载约 2.3GB),按模型名做进程内单例,避免每次跑重载。
+模型重(首次下载),按模型名做进程内单例,避免每次跑重载。
 """
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
@@ -139,6 +142,15 @@ def get_embedder(settings: Settings) -> Embedder:
     if cfg.provider == "local":
         return LocalEmbedder(cfg.model, cache_dir=cfg.cache_dir, threads=cfg.threads)
     if cfg.provider == "mlx":
+        # mlx-embeddings 仅 Apple Silicon(pyproject sys_platform=='darwin' 装不到别的平台)。
+        # 非苹果机器给一句能照做的话,而不是首次 embed 时抛看不懂的 ModuleNotFoundError。
+        if importlib.util.find_spec("mlx_embeddings") is None:
+            raise RuntimeError(
+                "provider=mlx 需要 Apple Silicon 上的 mlx-embeddings(本机没装到)。"
+                "非 Apple Silicon(Intel Mac / Linux / Windows / AMD)请在 config.yaml 把 "
+                "dedup.provider 改为 local、dedup.model 改回 jinaai/jina-embeddings-v3——"
+                "fastembed/ONNX,纯 CPU 跨平台,中文去重质量够用。"
+            )
         return MlxEmbedder(cfg.model, query_instruction=cfg.query_instruction)
     if cfg.provider == "jina":
         # 失败要冒泡:没实现就明确报错,不静默退化成"不去重"

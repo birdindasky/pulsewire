@@ -59,17 +59,36 @@ flowchart LR
 
 A single async Python process plus one postgres (pgvector) container. Every stage checkpoints; failures alert and resume — it never silently ships an empty issue. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (architecture) and [`docs/DESIGN.md`](docs/DESIGN.md) (design rationale) — both in Chinese.
 
-## Getting started (macOS)
+## System requirements
 
-Prereqs: Apple Silicon Mac · [Docker Desktop](https://www.docker.com/products/docker-desktop/) · [uv](https://docs.astral.sh/uv/) · a [DeepSeek API key](https://platform.deepseek.com/) (heavy daily use ≈ ¥2 ≈ $0.28/day).
+The engine is cross-platform (CI runs the full suite on Ubuntu). The only platform-specific piece is the **local embedding model**, which decides your path:
+
+| | Apple Silicon (M1+) | Intel Mac / Linux / Windows (incl. AMD) |
+|---|---|---|
+| Embedder | Qwen3-Embedding-0.6B on Metal GPU (default, fastest) | jina-embeddings-v3, fastembed/ONNX, **CPU-only** |
+| Config change | none, works out of the box | one line: `dedup.provider: mlx` → `local` in `config.yaml` |
+| Model size | ~630MB (8-bit) | ~2.2GB (fp32 ONNX) |
+| GPU | uses Apple GPU | **no GPU needed**, pure CPU (Intel/AMD CPU both fine) |
+
+- **RAM**: 8GB works (embedder + Docker postgres + headless browser for rendering), 16GB comfortable.
+- **Disk**: keep ~5GB free (model + postgres image + Chromium + caches).
+- **Shared prereqs**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (postgres) · [uv](https://docs.astral.sh/uv/) · a [DeepSeek API key](https://platform.deepseek.com/) (judge panel + writing run in the cloud, ≈ ¥2 ≈ $0.28/day heavy use).
+- **Scheduling / desktop app are macOS-only**: daily automation uses launchd, the desktop app is Electron/mac. On other OSes, trigger `uv run pulsewire run` from your own cron / scheduled task — the core digest still works.
+
+> **Non-Apple-Silicon users**: set `dedup.provider` to `local` in `config.yaml` (keep the default `dedup.model: jinaai/jina-embeddings-v3`) — runs cross-platform on CPU with good Chinese dedup quality. For stronger Chinese use `BAAI/bge-m3`, or the ONNX build of Qwen3-0.6B to match the Apple path; both need a bit of custom registration, whereas jina-v3 works out of the box.
+
+## Getting started
+
+Prereqs: see System requirements above. Apple Silicon default path:
 
 ```bash
 git clone https://github.com/birdindasky/pulsewire.git && cd pulsewire
 cp .env.example .env            # set PULSEWIRE_DEEPSEEK_API_KEY
+# Non-Apple-Silicon: switch dedup.provider from mlx to local in config.yaml (see above)
 docker compose up -d postgres
 uv run alembic upgrade head
 uv run pulsewire run --force    # full pipeline, ~20–35 min
-open web/app/index.html
+open web/app/index.html         # Linux: use xdg-open
 ```
 
 - **Daily schedule**: `uv run pulsewire schedule --hour=6` generates launchd files and prints install instructions (auto-starts Docker, shuts it down after, catches up after wake).
@@ -79,7 +98,7 @@ open web/app/index.html
 
 ## Honest edges
 
-- **Built for macOS (Apple Silicon)**: embeddings run on MLX/Metal, scheduling uses launchd. Linux runs the core pipeline (CI runs the full test suite on Ubuntu) but needs an embedding provider swap and your own cron.
+- **Mac-first, not Mac-locked**: tuned out of the box for Apple Silicon (MLX/Metal embeddings, launchd scheduling, Electron/mac desktop app). Intel/Linux/Windows/AMD run the core digest too — flip one line (`dedup.provider: local`, CPU-only) and wire your own cron; see System requirements. CI runs the full suite on Ubuntu.
 - **Output is Chinese** — by design.
 - **Bring your own DeepSeek key** (litellm-compatible; swapping providers is a one-line config change).
 - **Feishu push is optional**; web + desktop work without it.

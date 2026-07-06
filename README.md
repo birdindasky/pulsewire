@@ -61,17 +61,36 @@ flowchart LR
 
 单体异步 Python + 一个 postgres(pgvector)容器。每站写检查点,断电断网从断点续跑;任何一站失败都告警冒泡,**绝不静默产出空日报**。细节见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md),每个设计为什么这么做见 [`docs/DESIGN.md`](docs/DESIGN.md)。
 
-## 跑起来(macOS)
+## 系统要求
 
-前置:Apple Silicon Mac · [Docker Desktop](https://www.docker.com/products/docker-desktop/) · [uv](https://docs.astral.sh/uv/) · 一把 [DeepSeek API key](https://platform.deepseek.com/)(重度使用约 ¥2/天)。
+引擎本身跨平台(CI 在 Ubuntu 上跑通全套测试),唯一分平台的是**本地向量模型**——它决定你走哪条路:
+
+| | Apple Silicon(M1 及以上) | Intel Mac / Linux / Windows(含 AMD) |
+|---|---|---|
+| 向量模型 | Qwen3-Embedding-0.6B,跑 Metal GPU（默认，最快） | jina-embeddings-v3，fastembed/ONNX **纯 CPU** |
+| 要改配置吗 | 不用,开箱即默认 | 改一行:`config.yaml` 里 `dedup.provider: mlx` → `local` |
+| 模型体积 | ~630MB（8-bit） | ~2.2GB（fp32 ONNX） |
+| 显卡 | 用 Apple GPU | **不需要显卡**,纯 CPU（Intel/AMD CPU 都行） |
+
+- **内存**:8GB 能跑(向量模型 + Docker postgres + 渲染用的无头浏览器同时开),16GB 舒服。
+- **磁盘**:留 ~5GB(模型 + postgres 镜像 + Chromium + 缓存)。
+- **共同前置**:[Docker Desktop](https://www.docker.com/products/docker-desktop/)(postgres)· [uv](https://docs.astral.sh/uv/)· 一把 [DeepSeek API key](https://platform.deepseek.com/)(判官团 + 写稿走云端,重度使用约 ¥2/天)。
+- **调度 / 桌面 App 是 macOS 专属**:每天自动跑靠 launchd、桌面 App 是 Electron/mac。非 macOS 用自己的 cron / 计划任务定时触发 `uv run pulsewire run`,核心日报照常出。
+
+> **非 Apple Silicon 用户**:把 `config.yaml` 里 `dedup.provider` 从 `mlx` 改成 `local`(`dedup.model` 保持默认 `jinaai/jina-embeddings-v3`),就能纯 CPU 跨平台跑,中文去重质量够用(实测同事件余弦 0.87 / 不同事件 0.06,分得干净)。想要更强中文可换 `BAAI/bge-m3`,想跟苹果端同模型可用 Qwen3-0.6B 的 ONNX 版——两者都要多写一点自定义注册,默认 jina-v3 开箱即用。
+
+## 跑起来
+
+前置见上「系统要求」。以 Apple Silicon 默认路径为例:
 
 ```bash
 git clone https://github.com/birdindasky/pulsewire.git && cd pulsewire
 cp .env.example .env            # 填 PULSEWIRE_DEEPSEEK_API_KEY
+# 非 Apple Silicon:把 config.yaml 里 dedup.provider 从 mlx 改成 local(见「系统要求」)
 docker compose up -d postgres   # 数据库(pgvector)
 uv run alembic upgrade head     # 建表
 uv run pulsewire run --force    # 整跑一遍,约 20–35 分钟
-open web/app/index.html         # 看你的第一本日报
+open web/app/index.html         # 看你的第一本日报(Linux 用 xdg-open)
 ```
 
 - **每天自动跑**:`uv run pulsewire schedule --hour=6` 生成 launchd 调度文件并打印安装说明(自动拉起 Docker、跑完关掉、睡过点插电后自动补课)。
@@ -89,7 +108,7 @@ open web/app/index.html         # 看你的第一本日报
 
 ## 丑话说在前面
 
-- **为 macOS(Apple Silicon)而生**:语义去重跑 MLX/Metal,定时靠 launchd,桌面 App 是 Electron/mac。Linux 能跑核心流水线(CI 就在 Ubuntu 上跑全套测试),但嵌入要换 provider、调度自己配 cron,开箱体验是 Mac 的。
+- **Mac 优先,但不锁 Mac**:开箱默认为 Apple Silicon 调好(向量跑 MLX/Metal、定时靠 launchd、桌面 App 是 Electron/mac)。Intel/Linux/Windows/AMD 也能跑核心日报——改一行 `dedup.provider: local`(纯 CPU),调度自己配 cron,详见「系统要求」。CI 就在 Ubuntu 上跑通全套测试。
 - **日报是中文的**:全球信源进,中文大白话出。这是特色,不是缺陷。
 - **要自备 DeepSeek key**:接口走 litellm 通用制式,想换别家兼容模型改一行配置。
 - **飞书推送是可选件**:不配飞书,网页版 + 桌面 App 照常满血。
