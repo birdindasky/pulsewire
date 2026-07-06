@@ -43,5 +43,9 @@ jobs:
       - name: Run migrations
         run: uv run alembic upgrade head
 
+      # render 站用 playwright 无头 Chromium 出图;测试里 github 榜快照会真渲一次
+      - name: Install Playwright browser
+        run: uv run playwright install --with-deps chromium
+
       - name: Tests (incl. DB round-trip + delivery idempotency)
         run: uv run pytest -q

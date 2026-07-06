@@ -26,9 +26,10 @@ from sqlalchemy.pool import NullPool
 
 from pulsewire.config import get_settings
 from pulsewire.store import repo, upsert_item, upsert_ranking
-from pulsewire.store.tables import Item, Ranking, Summary
+from pulsewire.store.tables import Item, Ranking, Run, Summary
 
 _IK = "int_gradecv"  # 本测试专用 interest_key(<=32 字符)
+_RUN_ID = "daily_20260623"  # run_summarize 的 run_id;summaries.run_id 外键指向 runs,须先 seed
 _SOURCES = ("gradecv-a", "gradecv-b", "gradecv-c")
 
 
@@ -83,6 +84,10 @@ async def _seed_ranked_items(sm, n=2):
     ids = []
     async with sm() as session:
         async with session.begin():
+            # run_summarize 写 summaries 需父 runs 行(FK summaries_run_id_fkey);生产由
+            # orchestrator 建,这里直接调 run_summarize 故手动 seed。幂等:已存在则不重复建。
+            if await session.get(Run, _RUN_ID) is None:
+                await repo.create_run(session, run_id=_RUN_ID, trigger_type="daily")
             for i in range(n):
                 iid = await upsert_item(
                     session, source=_SOURCES[i % len(_SOURCES)],
@@ -108,6 +113,7 @@ async def _cleanup(sm, ids):
             await session.execute(delete(Summary).where(Summary.interest_key == _IK))
             if ids:
                 await session.execute(delete(Item).where(Item.item_id.in_(ids)))
+            await session.execute(delete(Run).where(Run.run_id == _RUN_ID))
 
 
 # =========================================================================== #
