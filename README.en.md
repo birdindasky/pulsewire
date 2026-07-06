@@ -104,6 +104,10 @@ open web/app/index.html         # Linux: use xdg-open
 - **Feishu push is optional**; web + desktop work without it.
 - **Single-player**: no accounts, no server, no subscription. Clone it, run yours.
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) — dev setup, tests, PR flow, and the non-negotiables (zero fabricated numbers, fail loud, keys never in the repo).
+
 ## License
 
 [MIT](LICENSE) © birdindasky

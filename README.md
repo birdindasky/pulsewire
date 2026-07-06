@@ -122,6 +122,7 @@ open web/app/index.html         # 看你的第一本日报(Linux 用 xdg-open)
 | [`docs/DESIGN.md`](docs/DESIGN.md) | 所有「为什么这么设计」合订本:选稿引擎 / 判官团 / 事件线 / 语义问答 |
 | [`STYLE.md`](STYLE.md) | 剪报本视觉规范(改视觉先读这个) |
 | [`desktop/README.md`](desktop/README.md) | 桌面 App 构建与安装 |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | 想出力?搭环境 / 跑测试 / 提 PR / 焊死的规矩 |
 
 ## License
 
