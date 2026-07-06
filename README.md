@@ -89,7 +89,7 @@ cp .env.example .env            # 填 PULSEWIRE_DEEPSEEK_API_KEY
 # 非 Apple Silicon:把 config.yaml 里 dedup.provider 从 mlx 改成 local(见「系统要求」)
 docker compose up -d postgres   # 数据库(pgvector)
 uv run alembic upgrade head     # 建表
-uv run pulsewire run --force    # 整跑一遍,约 20–35 分钟
+uv run pulsewire run --force    # 整跑一遍,约 20–90 分钟(首次冷启动偏长,判决缓存暖后重跑更快)
 open web/app/index.html         # 看你的第一本日报(Linux 用 xdg-open)
 ```
 

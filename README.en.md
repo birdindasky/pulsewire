@@ -87,7 +87,7 @@ cp .env.example .env            # set PULSEWIRE_DEEPSEEK_API_KEY
 # Non-Apple-Silicon: switch dedup.provider from mlx to local in config.yaml (see above)
 docker compose up -d postgres
 uv run alembic upgrade head
-uv run pulsewire run --force    # full pipeline, ~20–35 min
+uv run pulsewire run --force    # full pipeline, ~20–90 min (slower on a cold first run; faster once the judgment cache warms up)
 open web/app/index.html         # Linux: use xdg-open
 ```
 

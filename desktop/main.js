@@ -123,12 +123,12 @@ async function rerunDaily() {
     cancelId: 0,
     message: '立即重跑今天的日报?',
     detail:
-      '整套流水线约 12–18 分钟,跑完会真推送到你的飞书(同一天幂等,只推一次)。\n会自动开 Docker、跑完自动关;期间窗口可正常用,完成后自动刷新。',
+      '整套流水线约 20–90 分钟(判决缓存暖时偏快、冷启动偏长),跑完会真推送到你的飞书(同一天幂等,只推一次)。\n会自动开 Docker、跑完自动关;期间窗口可正常用,完成后自动刷新。',
   })
   if (response !== 1) return
 
   rerunning = true
-  new Notification({ title: 'Pulsewire', body: '日报开始重跑,约 12–18 分钟…' }).show()
+  new Notification({ title: 'Pulsewire', body: '日报开始重跑,约 20–90 分钟…' }).show()
   // 自动管 Docker:没起则拉起 → 等就绪 → 跑 --force → 用完关 Docker(与每日脚本同款生命周期)。
   // $i/$(...)/$rc 是 bash(单 $,不与 JS 的 ${} 冲突);只有 ROOT/DOCKER/UV 被 JS 内插。
   const rerunSh = `
