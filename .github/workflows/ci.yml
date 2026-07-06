@@ -23,10 +23,10 @@ jobs:
       PULSEWIRE_DATABASE__HOST: localhost
       PULSEWIRE_DATABASE__PASSWORD: pulsewire
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v8
         with:
           python-version: "3.12"
 
